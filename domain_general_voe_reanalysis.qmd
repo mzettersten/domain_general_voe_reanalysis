@@ -1,0 +1,567 @@
+---
+title: "A reanalysis of 'Infants' Domain-General Responses to Expectancy Violations'"
+format: 
+  html:
+    toc: true
+    toc-location: left
+    toc-depth: 3
+    toc-expand: true
+editor: visual
+---
+
+# Introduction
+
+This is a reanalysis of Bisbee & Feigenson (2026), focusing on the fact that infants were not randomly assigned to *always* either see surprising outcomes first (for all 8 VOE events) or *always* see unexpected outcomes.
+This has important consequences for the interpretation of individual differences in the paper.
+The upshot is that what are interpreted as individual differences in the paper are mostly measurements of whether infants were assigned to see surprising outcomes first or expected outcomes first:
+Infants who saw surprising test trials first look longer to surprising events, infants who saw expected test trials first tend to look longer at expected events, and this explains most of the variance across individuals.
+In other words, variation in looking time differences is explained by order effects.
+
+# Setup
+
+```{r}
+#| output: false
+library(here)
+library(tidyverse)
+library(lavaan)
+library(cowplot)
+library(car)
+library(effectsize)
+library(patchwork)
+```
+
+This setup code chunk just follows the code (helpfully shared) from the original paper, reading in the primary VOE data and applying exclusion criteria and transformations from the paper.
+
+First, we add a chunk for processed the raw data into the primary data for analysis. Download the raw_voe_data.csv file from the OSF repository and place it in the data folder to run this step. Or, skip it and move straight to the next chunk.
+
+```{r, eval = FALSE}
+# Load raw frame-level dataset
+raw_voe_data <- read_csv(here("data", "raw_voe_data.csv"))
+
+# Aggregate to trial-level means for each subject/scene/outcome
+primary_voe_data_intermediate <- raw_voe_data %>%
+  group_by(subj, age_months, gender, eu_order, domain, scene, outcome, test) %>%
+  summarize(look = mean(look, na.rm = TRUE)) %>%
+  ungroup() %>%
+  spread(test, look) %>%
+  dplyr::select(
+    subject = subj,
+    age_months,
+    gender,
+    outcome_order = eu_order,
+    domain,
+    task = scene,
+    outcome,
+    familiarization = fam,
+    test_window = test
+  )
+
+#save primary data file
+write_csv(primary_voe_data_intermediate, here("data", "primary_voe_data_intermediate.csv"))
+```
+
+Read in the intermediate data file and apply exclusion criteria from the paper (using code from the original paper's code base, lightly modified to retain additional variables).
+
+```{r}
+primary_voe_data_intermediate <- read_csv(here("data", "primary_voe_data_intermediate.csv"))
+
+# Retain only trials where infants looked at least 50% of the familiarization phase
+primary_voe_data_fam_excl <- primary_voe_data_intermediate %>%
+  filter(familiarization > 0.5) %>%
+  dplyr::select(-familiarization)  # Drop column after filter
+
+# Compute log-looking time to normalize skew and reduce influence of long looks
+# - Trials must exceed 5s minimum looking time
+# - Compute difference score: unexpected - expected
+window_size_s <- 30                      # Freeze frame duration per test trial (in seconds)
+minimum_looking_time <- 5                # Minimum threshold (in seconds)
+
+
+primary_voe_data_look_excl <- primary_voe_data_fam_excl %>%
+  mutate(look = log(window_size_s * test_window),
+         look_raw = window_size_s * test_window) %>% #edit here to preserve raw looking time
+  dplyr::select(-test_window) %>%
+  filter(look > log(minimum_looking_time))  # Exclude very low-looking trials
+
+# e. Compute difference between looking to unexpected and expected outcomes
+primary_voe_data <- primary_voe_data_look_excl %>%
+  #pivot both look and look_raw to wide format
+  pivot_wider(names_from = outcome, values_from = c(look, look_raw)) %>%
+  mutate(
+    diff_log = look_unexpected - look_expected,
+    diff_raw = look_raw_unexpected - look_raw_expected) %>%
+  na.omit() %>%
+  ungroup()
+```
+
+# Observation: 1 Trial order (expected first or unexpected first) has a very large effect on looking time
+
+## Trial Order Effect (by task)
+
+The first descriptive thing to observe is just that expected first/ unexpected first has a large effect on the VOE effect: infants who (always) see expected events first look much longer to expected test trials (i.e., the first trial); infants who see unexpected events first look much longer to unexpected test trials.
+This is true for all events in the paper.
+This makes sense: we *should* expect infants (on average) to look much longer to the first test trial than the second (perceptually very similar) trial within a given VOE event.
+The paper does not take this large source of between-infant variance into account.
+
+```{r}
+#| fig-height: 8
+
+#summarize data for each VOE event by expected first vs. unexpected first
+summarize_task_outcome_order <- primary_voe_data %>%
+  group_by(domain,task, outcome_order) %>%
+  summarize(
+    n = n(),
+    mean_diff_log = mean(diff_log),
+    mean_diff_raw = mean(diff_raw),
+    #95% CIs (quick approx)
+    ci_diff_log = 1.96 * sd(diff_log) / sqrt(n),
+    ci_diff_raw = 1.96 * sd(diff_raw) / sqrt(n),
+    .groups = "drop")
+```
+
+```{r}
+ggplot(summarize_task_outcome_order, aes(x = outcome_order, y = mean_diff_log, fill = domain,color=domain)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_jitter(data=primary_voe_data,aes(y = diff_log), width = 0.1,height=0, alpha = 0.1)+
+  geom_errorbar(aes(ymin = mean_diff_log - ci_diff_log, ymax = mean_diff_log + ci_diff_log), width = 0, color="black") +
+  facet_wrap(~ domain+task,ncol=4) +
+  labs(x = "Outcome Order",
+       y = "VOE Effect (Unexpected - Expected Log Looking)") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  theme_cowplot()+
+  theme(legend.position="none")
+```
+
+## Trial Order Effect (overall)
+
+The plot above breaks this down by task, but just to emphasize that this effect is quite large, here's a plot showing the effect summarizing across all VOE events, collapsing across domain and task.
+
+::: {.panel-tabset}
+
+```{r}
+summarize_subj_order <- primary_voe_data %>%
+  group_by(subject,age_months,outcome_order) %>%
+  summarize(
+    mean_diff_log = mean(diff_log),
+    mean_diff_raw = mean(diff_raw),
+    .groups = "drop")
+
+summarize_order <- summarize_subj_order %>%
+  group_by(outcome_order) %>%
+  summarize(
+    n = n(),
+    group_avg_diff_log = mean(mean_diff_log),
+    group_avg_diff_raw = mean(mean_diff_raw),
+    #95% CIs (quick approx)
+    ci_diff_log = 1.96 * sd(mean_diff_log) / sqrt(n),
+    ci_diff_raw = 1.96 * sd(mean_diff_raw) / sqrt(n),
+    .groups = "drop")
+```
+
+### Log Looking
+
+```{r}
+#summarize data for each VOE event by expected first vs. unexpected first
+ggplot(summarize_order, aes(x = outcome_order, y = group_avg_diff_log, fill = outcome_order,color=outcome_order)) +
+  geom_violin(data=summarize_subj_order,aes(y = mean_diff_log),fill=NA) +
+  geom_jitter(data=summarize_subj_order,aes(y = mean_diff_log), width = 0.1,height=0, alpha = 0.1)+
+  geom_point(size=3) +
+  geom_errorbar(aes(ymin = group_avg_diff_log - ci_diff_log, ymax = group_avg_diff_log + ci_diff_log), width = 0) +
+  labs(x = "Outcome Order",
+       y = "VOE Effect (Unexpected - Expected Log Looking)") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  theme_cowplot()+
+  theme(legend.position="none")
+```
+
+### Raw Looking
+
+```{r}
+#in raw looking time, just to have a feel
+ggplot(summarize_order, aes(x = outcome_order, y = group_avg_diff_raw, fill = outcome_order,color=outcome_order)) +
+  geom_violin(data=summarize_subj_order,aes(y = mean_diff_raw),fill=NA) +
+  geom_jitter(data=summarize_subj_order,aes(y = mean_diff_raw), width = 0.1,height=0, alpha = 0.1)+
+  geom_point(size=3) +
+  geom_errorbar(aes(ymin = group_avg_diff_raw - ci_diff_raw, ymax = group_avg_diff_raw + ci_diff_raw), width = 0) +
+  labs(x = "Outcome Order",
+       y = "VOE Effect (Unexpected - Expected Raw Looking)") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  theme_cowplot()+
+  theme(legend.position="none")
+```
+
+:::
+
+# Observation 2: The latent factor in the CFA appears mostly (if not entirely) to be capturing variation due to assigned order.
+
+The core worry is that the single-factor emerging from the CFA analysis is mainly tracking whether infants were assigned to unexpected-first or expected-first orders (since this structures variation in looking time).
+
+I first re-fit the original model, which revealed a latent, single factor underlying variation. 
+I then pursue several different strategies to try to understand to what extent the latent factor (interpreted as a  general surprise factor in the paper) is explained by the order confound.
+I tried a few different approaches here, because it's not quite clear to me whether there was a "best" way to understand to what extent the latent factor is (just) an artifact of the order confound. Triangulating across these three approaches, it seems like the answer is yes: The latent factor is mostly if not entirely capturing variation due to assigned order.
+1. To what extent does assigned order explain variation in the latent factor (fitting a MIMIC model)?
+2. Does a latent factor emerge after residualizing looking for each task on order?
+3. Estimating individual scores for the latent variable and regressing them on outcome order (less good than the MIMIC model because of attenuation due to measurement reliability).
+
+## 0. Original (Single-Factor) Model
+
+We can first reproduce the original model, using the code from the paper.
+
+```{r}
+dat.lav <- primary_voe_data %>%
+  dplyr::select(subject, outcome_order,task, age_months, diff_log) %>%
+  group_by(task) %>%
+  mutate(diff_log = scale(diff_log)) %>%       # z-score within task
+  spread(task, diff_log)
+
+#fit 1-factor CFA model
+model_gen <- 'gen_factor =~ continuity + support + solidity + containment + reach + snack + drink + fairness'
+fit1.lav <- cfa(model_gen, missing = "FIML", estimator = "MLR", data = dat.lav, std.lv = TRUE)
+
+#summarize original 1-factor model
+summary(fit1.lav)
+fitMeasures(fit1.lav, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr", "aic", "bic"))
+semTools::reliability(fit1.lav, what = c("alpha", "omega", "ave"))
+```
+
+## 1. MIMIC model
+
+We next fit a "MIMIC" model, in which we fit the same CFA/ measurement model, and add a structural model in which outcome_order predicts the latent factor.
+To the extent to which outcome_order explains most (if not all) of the variance in the latent factor, this suggests that the latent factor (interpreted as a "general surprise" factor) is better interpreted as an "assigned order" factor.
+The upshot of this model is that outcome order explains 85% of the variance in the latent "domain-general surprise sensitivity".
+In other words, this model confirms that the latent factor is best understood as an "assigned order" factor.
+
+```{r}
+model_mimic <- '
+  gen_factor =~ continuity + support + solidity + containment + reach + snack + drink + fairness
+  gen_factor ~ outcome_order
+'
+fit_mimic <- sem(model_mimic, data = dat.lav, estimator = "MLR", missing = "fiml")
+summary(fit_mimic, standardized = TRUE, rsquare = TRUE)
+lavInspect(fit_mimic, "rsquare")
+```
+
+## 2. Residualized model
+
+An alternate way to dig into the effect of outcome order is to try to remove the effect of outcome order on looking on each task (via residualizing), and then refit the CFA model on residualized looking (i.e., after accounting for outcome order).
+I fit this model below.
+The model technically converges, but the general factor variance is now basically indistinguishable from zero (.001, 95% CI [-.029, .032]). 
+The factor laodings are now all over the place - I think this is just a consequence of the shared variance being so, so small (so now the factor loading estimates are super unstable).
+The upshot seems to be that we can't successfully identify a common factor after partialling out the effect of infants' assigned order on looking time differences.
+
+```{r}
+#create a dataset
+df_resid <- dat.lav %>%
+  mutate(across(c(continuity, support, solidity, containment, reach, snack, drink, fairness),
+                ~ resid(lm(.x ~ outcome_order, data = dat.lav, na.action = na.exclude)),
+                .names = "{.col}_r"))
+#fit CFA model
+model_resid <- '
+  gen_factor =~ continuity_r + support_r + solidity_r + containment_r + reach_r + snack_r + drink_r + fairness_r
+'
+fit_resid <- cfa(model_resid, data = df_resid, estimator = "MLR", missing = "fiml")
+#inspect model/fit results
+summary(fit_resid, fit.measures = TRUE, standardized = TRUE,rsquare=TRUE)
+fitMeasures(fit_resid, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr", "aic", "bic"))
+parameterEstimates(fit_resid) %>% filter(lhs == "gen_factor", op == "~~")  # factor variance
+```
+
+## 3. Predicting estimated latent scores from outcome order
+
+Here, we add another (probably dispreferred, but perhaps simpler) way to interrogate the extent to which the latent factor reflects outcome order.
+We extract estimates of the latent factor for individuals from the original CFA model.
+We then predict these individual estimates from outcome order.
+The analysis again finds that assigned order explains a vast amount of the variance in the latent factor (r squared = 0.44).
+Note that the variance explained is at the same time substantially lower than for Approach 1 (0.44 vs. 0.85).
+I think this makes sense from a psychometric perspective, however, because of attenuation bias due to measurement unreliability.
+The MIMIC model estimates the variance explained directly from the measurement model, whereas in the approach below, we are correlating outcome order with (noisy) estimates of the individual scores. Because reliability of the general surprise factor is modest/ medium (~.66, see estimate above), the R2 naturally shrinks due to the additional noise.
+I think the MIMIC model is probably strictly the better approach here, but I report all three approaches I tried for transparency/ to give a more complete picture.
+
+```{r}
+#extract individual estimates of general factor scores from the CFA model
+fs <- lavPredict(fit1.lav, method = "Bartlett")  # from your original model_gen fit
+dat.lav$gen_factor_score <- fs[, "gen_factor"]
+#how much variation does outcome order explain?
+summary(lm(gen_factor_score ~ outcome_order, data = dat.lav))
+```
+
+## Summary
+
+Triangulating across three approaches, it appears clear that the estimated latent factor in the CFA analysis is largely driven by and almost entirely accounted for by infants' assigned order (~85% of the variance in the MIMIC model; there is little to explain once outcome order is regressed out of looking).
+
+# Observation 3: Correlations do not generally hold when outcome order is taken into account
+
+## Original Correlations
+
+First, I reproduce the correlation plots demonstrating the relationship between looking time differences for social tasks vs. physical tasks, reported in the original paper (Figure 3).
+
+Two notes:
+- the median age is reported as 17.9 months in the paper, but I get 20.3 months (also when I run the original script or when I just inspect the primary_voe_data object post exclusions).
+- It appears that some additional data might have been excluded to create the exact plots in Figure 3. I couldn't track down which data might be excluded based on the scripts provided.
+
+Regardless, the general patterns hold true:
+- There is an overall correlation of the VOE effects for the social vs. the physical domain.
+- Both younger and older infants show evidence of a correlation, but the correlation becomes much stronger for older infants.
+
+```{r}
+#data approach from the paper (adding outcome order)
+dat.cross <- primary_voe_data %>%
+  group_by(subject, age_months,outcome_order,domain) %>%
+  summarize(diff.m = mean(diff_log, na.rm = TRUE)) %>%
+  spread(domain, diff.m) %>%
+  na.omit() %>%
+  ungroup() %>%
+  mutate(
+    age.z    = scale(age_months),
+    physical = scale(physical),
+    social   = scale(social)
+  ) 
+
+median_age <- median(dat.cross$age_months)
+```
+
+::: {.panel-tabset}
+### Overall
+
+```{r}
+overall <- dat.cross %>%
+  ggplot(aes(x = scale(physical), y = social)) +
+  geom_point(color = "blue2") +
+  geom_smooth(method = 'lm', se = FALSE, color = "blue2") +
+  labs(x = "Physical Surprise Scores", y = "Social Surprise Scores") +
+  theme_classic() +
+  theme(aspect.ratio = 1) +
+  xlim(-2.5, 2.5) + ylim(-3.5,3.5)
+overall
+```
+
+### Younger Infants
+
+```{r}
+# Younger infants (< median age)
+younger <- dat.cross %>%
+  filter(age_months <= median_age) %>%
+  ggplot(aes(x = scale(physical), y = social)) +
+  geom_point(color = "blue2") +
+  geom_smooth(method = 'lm', se = FALSE, color = "blue2") +
+  labs(x = "Physical Surprise Scores", y = "Social Surprise Scores") +
+  theme_classic() +
+  theme(aspect.ratio = 1) +
+  xlim(-2.5, 2.5) + ylim(-3.5, 3.5) #scaling issue???// exclusions different from paper?
+younger
+```
+
+### Older Infants
+
+```{r}
+# Older infants (> median age)
+older <- dat.cross %>%
+  filter(age_months > median_age) %>%
+  ggplot(aes(x = scale(physical), y = scale(social))) +
+  geom_point(color = "blue3") +
+  geom_smooth(method = 'lm', se = FALSE, color = "blue3") +
+  labs(x = "Physical Surprise Scores", y = "Social Surprise Scores") +
+  theme_classic() +
+  theme(aspect.ratio = 1) +
+  xlim(-2.5, 2.5) + ylim(-3.5, 3.5)
+older
+```
+
+:::
+
+## Correlations split by outcome order
+
+First, observe the distribution of expected-first vs. unexpected-first infants in the overall correlation plot. We can see that at least a large amount of the covariance is due to order: expected-first infants show lower looking time differences (longer looking to the expected trial, which is their first trial) in both domains, unexpected-first infants show higher looking time differences (longer looking to the unexpected trial, which is their first trial).
+
+```{r}
+overall_order_color <- dat.cross %>%
+  ggplot(aes(x = scale(physical), y = social,color=outcome_order)) +
+  geom_point() +
+  geom_smooth(method = 'lm', se = FALSE, color = "blue2") +
+  labs(x = "Physical Surprise Scores", y = "Social Surprise Scores") +
+  theme_classic() +
+  theme(aspect.ratio = 1) +
+  xlim(-2.5, 2.5) + ylim(-3.5,3.5)+
+  theme(legend.position = c(0.2,0.9))
+overall_order_color
+```
+
+Now, we look at the correlations splitting by the (assigned) expected-first or unexpected-first order. Are there any correlations after removing variance (in the surprisal score) due to assigned order? There appears to be much less systematic variance after splitting the data. There is perhaps some sign of a correlation among older infants in the unexpected-first group (r=.52), but not in the expected-first group. Younger infants show no evidence of systematic covariation.
+
+::: {.panel-tabset}
+### Overall
+
+```{r}
+overall_order_split <- dat.cross %>%
+  ggplot(aes(x = scale(physical), y = social)) +
+  geom_point(color = "blue2") +
+  geom_smooth(method = 'lm', se = FALSE, color = "blue2") +
+  labs(x = "Physical Surprise Scores", y = "Social Surprise Scores") +
+  theme_classic() +
+  theme(aspect.ratio = 1) +
+  xlim(-2.5, 2.5) + ylim(-3.5,3.5)+
+  facet_wrap(~outcome_order)
+overall_order_split
+```
+
+### Younger Infants
+
+```{r}
+# Younger infants (< median age)
+younger_order_split <- dat.cross %>%
+  filter(age_months <= median_age) %>%
+  ggplot(aes(x = scale(physical), y = social)) +
+  geom_point(color = "blue2") +
+  geom_smooth(method = 'lm', se = FALSE, color = "blue2") +
+  labs(x = "Physical Surprise Scores", y = "Social Surprise Scores") +
+  theme_classic() +
+  theme(aspect.ratio = 1) +
+  xlim(-2.5, 2.5) + ylim(-3.5, 3.5) +
+  facet_wrap(~outcome_order)
+younger_order_split
+
+#expected first
+cor.test(filter(dat.cross,age_months<=median_age&outcome_order=="exp_first")$physical,filter(dat.cross,age_months<=median_age&outcome_order=="exp_first")$social)
+
+#expected first
+cor.test(filter(dat.cross,age_months<=median_age&outcome_order=="unexp_first")$physical,filter(dat.cross,age_months<=median_age&outcome_order=="unexp_first")$social)
+```
+
+### Older Infants
+
+```{r}
+# Older infants (> median age)
+older_order_split <- dat.cross %>%
+  filter(age_months > median_age) %>%
+  ggplot(aes(x = scale(physical), y = scale(social))) +
+  geom_point(color = "blue3") +
+  geom_smooth(method = 'lm', se = FALSE, color = "blue3") +
+  labs(x = "Physical Surprise Scores", y = "Social Surprise Scores") +
+  theme_classic() +
+  theme(aspect.ratio = 1) +
+  xlim(-2.5, 2.5) + ylim(-3.5, 3.5)+
+  facet_wrap(~outcome_order)
+older_order_split
+
+#expected first
+cor.test(filter(dat.cross,age_months > median_age&outcome_order=="exp_first")$physical,filter(dat.cross,age_months > median_age&outcome_order=="exp_first")$social)
+
+#expected first
+cor.test(filter(dat.cross,age_months > median_age&outcome_order=="unexp_first")$physical,filter(dat.cross,age_months > median_age&outcome_order=="unexp_first")$social)
+```
+
+:::
+
+## No significant effect after controlling for outcome order
+
+When we fit the regression model predicting physical from social task looking and its interaction with age, but control for outcome order, there is no longer an overall significant effect of social task on physical task looking. The interaction with age is still significant (but a small effect). Outcome order explains a huge proportion of the variance.
+
+```{r}
+mod_int_control <- lm(physical ~ social * age.z + outcome_order, data = dat.cross)
+summary(mod_int_control)
+anova_mod_int_control <- Anova(mod_int_control, type=3)
+```
+
+# Other concerns
+
+## Only 2 of the 8 VOE tasks show a significant VOE effect
+
+Only 2 of the 8 VOE tasks show a statistically significant VOE effect. The corresponding t-tests are run in the script on OSF (great!), but they are not reported in the paper. Below is a plot showing the distribution of looking time difference scores for each task.
+
+```{r}
+#compute average looking time difference by task, with 95% CIs
+summarized_data <- primary_voe_data %>%
+  group_by(domain,task) %>%
+  summarize(
+    N=n(),
+    mean_diff = mean(diff_log, na.rm = TRUE),
+    se_diff = sd(diff_log, na.rm = TRUE) / sqrt(N),
+    ci_diff = qt(0.975, df = N - 1) * se_diff,
+  )
+
+#plot
+ggplot(summarized_data,aes(x=reorder(task,mean_diff),mean_diff,fill=domain, color=domain))+
+  geom_jitter(data=primary_voe_data,aes(x=reorder(task,diff_log,mean),y=diff_log),stat="identity", size=1,alpha=0.1,height=0,width=0.1)+
+  geom_violin(data=primary_voe_data,aes(x=reorder(task,diff_log,mean),y=diff_log),width=0.5,fill=NA)+
+  geom_point(stat="identity", size=3)+
+  geom_errorbar(aes(ymin=mean_diff-ci_diff,ymax=mean_diff+ci_diff),width=0)+
+  geom_hline(yintercept=0,linetype="dashed")+
+  facet_wrap(~domain, scales="free_x")+
+  labs(x="Task",y="Log Looking Time Difference (Unexpected-Expected)")+
+  theme_classic()+
+  theme(legend.position = "none")
+```
+
+## Bayesian model issues
+
+### Interpretation of interaction as a main effect
+
+The paper seems to describe a main effect of general surprise scores on broad exploration curiosity scores .
+E.g., on p. 6: "As predicted, we observed a reliable relationship between infants’ general surprise responses and their later Broad Exploration; this effect was significantly affected by age."
+Similarly in the discussion, the paper reads: "Infants’ surprise responses predicted their later Broad Exploration."
+However, there is no main effect of surprise on broad exploration: there is only an interaction between age (at VOE task) and general surprise, as reported in Table 1.
+The general relationship between surprise and broad exploration is negative and non-significant.
+The plot below illustrates this point.
+
+```{r}
+#create the dataset used in the brms model
+emcs_raw <- read.csv(here("data","emcs_raw.csv"))
+
+dat.brms <- left_join(primary_voe_data, emcs_raw, by = c("subject" = "subj")) %>%
+  ungroup() %>%
+  mutate(
+    sociality         = scale(emcs_soc),
+    info_seeking      = scale(emcs_seek),
+    broad_exploration = scale(emcs_exp),
+    persistence       = scale(emcs_per),
+    vocab_tot         = scale(vocab_tot)
+  ) %>%
+  group_by(subject, age_months, vocab_tot,
+           broad_exploration, info_seeking,
+           persistence, sociality, age_surv) %>%
+  summarize(
+    gen_factor = mean(diff_log, na.rm = TRUE)  # average surprise score per subject
+  ) %>%
+  na.omit() %>%
+  ungroup() %>%
+  mutate(
+    gen_factor   = scale(gen_factor),
+    age_months.z = scale(age_months),
+    age_surv.z   = scale(age_surv)) %>%
+  mutate(
+    age_split    = ifelse(age_months.z > 0, "older", "younger")
+  )
+
+#plot just the simple correlation of broad exploration and general surprise, then split by age
+p1 <- ggplot(dat.brms,aes(gen_factor,broad_exploration))+
+  geom_point()+
+  geom_smooth(method="lm")+
+  labs(x = "General Surprise Factor", y= "Broad Exploration Score",title="Overall")+
+  theme_classic()
+p2 <- ggplot(filter(dat.brms,age_split=="younger"),aes(gen_factor,broad_exploration))+
+  geom_point()+
+  geom_smooth(method="lm")+
+  labs(x = "General Surprise Factor", y= "Broad Exploration Score",title="Younger Infants")+
+  theme_classic()
+p3 <- ggplot(filter(dat.brms,age_split=="older"),aes(gen_factor,broad_exploration))+
+  geom_point()+
+  geom_smooth(method="lm")+
+  labs(x = "General Surprise Factor", y= "Broad Exploration Score",title="Older Infants")+
+  theme_classic()
+p1+p2+p3
+```
+
+Note that even among older infants (median-split), there is no effect of "general surprise" on broad exploration (r=.24, non-significant).
+
+```{r}
+cor.test(filter(dat.brms,age_split=="older")$gen_factor, filter(dat.brms,age_split=="older")$broad_exploration)
+```
+
+### Interaction Model does not include lower-order effects
+
+An additional note is that I'm also worried about the specification of the Bayesian model predicting curiosity scores from general surprise.
+This also relates to the point above, because the interaction effect in the model can't be interpreted as a "pure" interaction.
+The model attempts to interpret an age(voe) by general surprise interaction, but without including all lower-order effects, in particular the effect of age(voe).
+I suspect this decision was made because there are two age variables (age when the VOE session occurred and age at which the questionnaire was filled out), and this decision is to avoid including both age variables.
+But, the result is that the "interaction" effect is now a difficult-to-interpret mix of a main effect of age(voe) and an interaction effect.
+
