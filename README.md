@@ -1,4 +1,4 @@
-# Re-analysis of Bisbee & Feigenson
+# Re-analysis of Bisbee & Feigenson (2026)
 
 The original data and scripts are available here: http://osf.io/ut4h8.
 
