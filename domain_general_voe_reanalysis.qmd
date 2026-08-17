@@ -198,9 +198,12 @@ The core worry is that the single-factor emerging from the CFA analysis is mainl
 
 I first re-fit the original model, which revealed a latent, single factor underlying variation. 
 I then pursue several different strategies to try to understand to what extent the latent factor (interpreted as a  general surprise factor in the paper) is explained by the order confound.
-I tried a few different approaches here, because it's not quite clear to me whether there was a "best" way to understand to what extent the latent factor is (just) an artifact of the order confound. Triangulating across these three approaches, it seems like the answer is yes: The latent factor is mostly if not entirely capturing variation due to assigned order.
+I tried a few different approaches here, because it's not quite clear to me whether there was a "best" way to understand to what extent the latent factor is (just) an artifact of the order confound. **Triangulating across these three approaches, it seems like the answer is yes: The latent factor is mostly if not entirely capturing variation due to assigned order.**
+
 1. To what extent does assigned order explain variation in the latent factor (fitting a MIMIC model)?
+
 2. Does a latent factor emerge after residualizing looking for each task on order?
+
 3. Estimating individual scores for the latent variable and regressing them on outcome order (less good than the MIMIC model because of attenuation due to measurement reliability).
 
 ## 0. Original (Single-Factor) Model
@@ -228,7 +231,7 @@ semTools::reliability(fit1.lav, what = c("alpha", "omega", "ave"))
 
 We next fit a "MIMIC" model, in which we fit the same CFA/ measurement model, and add a structural model in which outcome_order predicts the latent factor.
 To the extent to which outcome_order explains most (if not all) of the variance in the latent factor, this suggests that the latent factor (interpreted as a "general surprise" factor) is better interpreted as an "assigned order" factor.
-The upshot of this model is that outcome order explains 85% of the variance in the latent "domain-general surprise sensitivity".
+**The upshot of this model is that outcome order explains ~85% of the variance in the latent "domain-general surprise sensitivity".**
 In other words, this model confirms that the latent factor is best understood as an "assigned order" factor.
 
 ```{r}
@@ -247,7 +250,7 @@ An alternate way to dig into the effect of outcome order is to try to remove the
 I fit this model below.
 The model technically converges, but the general factor variance is now basically indistinguishable from zero (.001, 95% CI [-.029, .032]). 
 The factor laodings are now all over the place - I think this is just a consequence of the shared variance being so, so small (so now the factor loading estimates are super unstable).
-The upshot seems to be that we can't successfully identify a common factor after partialling out the effect of infants' assigned order on looking time differences.
+**The upshot seems to be that we can't successfully identify a common factor after partialling out the effect of infants' assigned order on looking time differences.**
 
 ```{r}
 #create a dataset
