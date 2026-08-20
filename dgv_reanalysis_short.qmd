@@ -200,7 +200,6 @@ cohens_d(mean_diff_raw ~ outcome_order, data = summarize_subj_order)
 ```
 
 The effect is extremely large, Cohen's d = `r round(cohens_d(mean_diff_raw ~ outcome_order, data = summarize_subj_order)$Cohens_d,2)`.
-
 :::
 
 # Observation 2: The latent factor in the CFA appears mostly (if not entirely) to be capturing variation due to assigned order.
@@ -460,100 +459,5 @@ When I fit the regression model predicting physical from social task looking and
 mod_int_control <- lm(physical ~ social * age.z + outcome_order, data = dat.cross)
 summary(mod_int_control)
 anova_mod_int_control <- Anova(mod_int_control, type=3)
-anova_mod_int_control
+anova_mod_int_control 
 ```
-
-# Other concerns
-
-## Only 2 of the 8 VOE tasks show a significant VOE effect
-
-Only 2 of the 8 VOE tasks show a statistically significant VOE effect. The corresponding t-tests are run in the script on OSF (great!), but they are not reported in the paper. Below is a plot showing the distribution of looking time difference scores for each task.
-
-```{r, warning=FALSE, message=FALSE}
-#compute average looking time difference by task, with 95% CIs
-summarized_data <- primary_voe_data %>%
-  group_by(domain,task) %>%
-  summarize(
-    N=n(),
-    mean_diff = mean(diff_log, na.rm = TRUE),
-    se_diff = sd(diff_log, na.rm = TRUE) / sqrt(N),
-    ci_diff = qt(0.975, df = N - 1) * se_diff,
-  )
-
-#plot
-ggplot(summarized_data,aes(x=reorder(task,mean_diff),mean_diff,fill=domain, color=domain))+
-  geom_jitter(data=primary_voe_data,aes(x=reorder(task,diff_log,mean),y=diff_log),stat="identity", size=1,alpha=0.1,height=0,width=0.1)+
-  geom_violin(data=primary_voe_data,aes(x=reorder(task,diff_log,mean),y=diff_log),width=0.5,fill=NA)+
-  geom_point(stat="identity", size=3)+
-  geom_errorbar(aes(ymin=mean_diff-ci_diff,ymax=mean_diff+ci_diff),width=0)+
-  geom_hline(yintercept=0,linetype="dashed")+
-  facet_wrap(~domain, scales="free_x")+
-  labs(x="Task",y="Log Looking Time Difference (Unexpected-Expected)")+
-  theme_classic()+
-  scale_color_brewer(palette="Set2")+
-  theme(legend.position = "none")
-```
-
-## Bayesian model issues
-
-### Interpretation of interaction as a main effect
-
-The paper seems to describe a main effect of general surprise scores on broad exploration curiosity scores . E.g., on p. 6: "As predicted, we observed a reliable relationship between infants’ general surprise responses and their later Broad Exploration; this effect was significantly affected by age." Similarly in the discussion, the paper reads: "Infants’ surprise responses predicted their later Broad Exploration." However, there is no main effect of surprise on broad exploration: there is only an interaction between age (at VOE task) and general surprise, as reported in Table 1. The general relationship between surprise and broad exploration is negative and non-significant. The plot below illustrates this point.
-
-```{r, warning=FALSE, message=FALSE}
-#create the dataset used in the brms model
-emcs_raw <- read.csv(here("data","emcs_raw.csv"))
-
-dat.brms <- left_join(primary_voe_data, emcs_raw, by = c("subject" = "subj")) %>%
-  ungroup() %>%
-  mutate(
-    sociality         = scale(emcs_soc),
-    info_seeking      = scale(emcs_seek),
-    broad_exploration = scale(emcs_exp),
-    persistence       = scale(emcs_per),
-    vocab_tot         = scale(vocab_tot)
-  ) %>%
-  group_by(subject, age_months, vocab_tot,
-           broad_exploration, info_seeking,
-           persistence, sociality, age_surv) %>%
-  summarize(
-    gen_factor = mean(diff_log, na.rm = TRUE)  # average surprise score per subject
-  ) %>%
-  na.omit() %>%
-  ungroup() %>%
-  mutate(
-    gen_factor   = scale(gen_factor),
-    age_months.z = scale(age_months),
-    age_surv.z   = scale(age_surv)) %>%
-  mutate(
-    age_split    = ifelse(age_months.z > 0, "older", "younger")
-  )
-
-#plot just the simple correlation of broad exploration and general surprise, then split by age
-p1 <- ggplot(dat.brms,aes(gen_factor,broad_exploration))+
-  geom_point()+
-  geom_smooth(method="lm")+
-  labs(x = "General Surprise Factor", y= "Broad Exploration Score",title="Overall")+
-  theme_classic()
-p2 <- ggplot(filter(dat.brms,age_split=="younger"),aes(gen_factor,broad_exploration))+
-  geom_point()+
-  geom_smooth(method="lm")+
-  labs(x = "General Surprise Factor", y= "Broad Exploration Score",title="Younger Infants")+
-  theme_classic()
-p3 <- ggplot(filter(dat.brms,age_split=="older"),aes(gen_factor,broad_exploration))+
-  geom_point()+
-  geom_smooth(method="lm")+
-  labs(x = "General Surprise Factor", y= "Broad Exploration Score",title="Older Infants")+
-  theme_classic()
-p1+p2+p3
-```
-
-Note that even among older infants (median-split), there is no effect of "general surprise" on broad exploration (r=.24, non-significant).
-
-```{r, warning=FALSE, message=FALSE}
-cor.test(filter(dat.brms,age_split=="older")$gen_factor, filter(dat.brms,age_split=="older")$broad_exploration)
-```
-
-### Interaction Model does not include lower-order effects
-
-An additional note is that I'm also worried about the specification of the Bayesian model predicting curiosity scores from general surprise. This also relates to the point above, because the interaction effect in the model can't be interpreted as a "pure" interaction. The model attempts to interpret an age(voe) by general surprise interaction, but without including all lower-order effects, in particular the effect of age(voe). I suspect this decision was made because there are two age variables (age when the VOE session occurred and age at which the questionnaire was filled out), and this decision is to avoid including both age variables. But, the result is that the "interaction" effect is now a difficult-to-interpret mix of a main effect of age(voe) and an interaction effect.
