@@ -142,7 +142,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>This is a reanalysis of Bisbee &amp; Feigenson (2026), focusing on the fact that infants were not randomly assigned to <em>always</em> either see surprising outcomes first (for all 8 VOE events) or <em>always</em> see unexpected outcomes. This has important consequences for the interpretation of individual differences in the paper. The upshot is that what are interpreted as individual differences in the paper are mostly measurements of whether infants were assigned to see surprising outcomes first or expected outcomes first: Infants who saw surprising test trials first look longer to surprising events, infants who saw expected test trials first tend to look longer at expected events, and this explains most of the variance across individuals. In other words, variation in looking time differences is explained by order effects.</p>
+<p>This is a reanalysis of Bisbee &amp; Feigenson (2026), focusing on the fact that infants were not randomly assigned to <em>always</em> either see surprising outcomes first (for all 8 VOE events) or <em>always</em> see unexpected outcomes. This has important consequences for the interpretation of individual differences in the paper. The upshot is that what are interpreted as individual differences in the paper are mostly measurements of whether infants were assigned to see surprising outcomes first or expected outcomes first: Infants who saw surprising test trials first look longer to surprising events, infants who saw expected test trials first tend to look longer at expected events, and this explains most of the systematic variance across individuals. In other words, variation in looking time differences is explained by order effects.</p>
 </section>
 <section id="setup" class="level1">
 <h1>Setup</h1>
@@ -153,10 +153,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cowplot)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(effectsize)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>This setup code chunk just follows the code (helpfully shared) from the original paper, reading in the primary VOE data and applying exclusion criteria and transformations from the paper.</p>
-<p>First, we add a chunk for processed the raw data into the primary data for analysis. Download the raw_voe_data.csv file from the OSF repository and place it in the data folder to run this step. Or, skip it and move straight to the next chunk.</p>
+<p>First, I add a chunk adapted from the original code for processing the raw data into the primary data for analysis. Download the raw_voe_data.csv file from the OSF repository and place it in the data folder to run this step. Or, skip it and move straight to the next chunk.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load raw frame-level dataset</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>raw_voe_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"raw_voe_data.csv"</span>))</span>
@@ -215,7 +216,7 @@ dbl (4): subject, age_months, familiarization, test_window
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># e. Compute difference between looking to unexpected and expected outcomes</span></span>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>primary_voe_data <span class="ot">&lt;-</span> primary_voe_data_look_excl <span class="sc">%&gt;%</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="co">#pivot both look and look_raw to wide format</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="co">#slight modification of original script: pivot both look and look_raw to wide format</span></span>
 <span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> outcome, <span class="at">values_from =</span> <span class="fu">c</span>(look, look_raw)) <span class="sc">%&gt;%</span></span>
 <span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">diff_log =</span> look_unexpected <span class="sc">-</span> look_expected,</span>
@@ -228,7 +229,7 @@ dbl (4): subject, age_months, familiarization, test_window
 <h1>Observation: 1 Trial order (expected first or unexpected first) has a very large effect on looking time</h1>
 <section id="trial-order-effect-by-task" class="level2">
 <h2 class="anchored" data-anchor-id="trial-order-effect-by-task">Trial Order Effect (by task)</h2>
-<p>The first descriptive thing to observe is just that expected first/ unexpected first has a large effect on the VOE effect: infants who (always) see expected events first look much longer to expected test trials (i.e., the first trial); infants who see unexpected events first look much longer to unexpected test trials. This is true for all events in the paper. This makes sense: we <em>should</em> expect infants (on average) to look much longer to the first test trial than the second (perceptually very similar) trial within a given VOE event. The paper does not take this large source of between-infant variance into account.</p>
+<p>The first descriptive thing to observe is just that expected first/ unexpected first has a large effect on the VOE effect: infants who (always) see expected events first look much longer to expected test trials (i.e., the first trial); infants who see unexpected events first look much longer to unexpected test trials. This is true for all events in the paper. This makes sense: we <em>should</em> expect infants (on average) to look much longer to the first test trial than the second (perceptually very similar) trial within a given VOE event. The analyses in the paper do not take this large source of between-infant variance into account.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#summarize data for each VOE event by expected first vs. unexpected first</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>summarize_task_outcome_order <span class="ot">&lt;-</span> primary_voe_data <span class="sc">%&gt;%</span></span>
@@ -243,16 +244,18 @@ dbl (4): subject, age_months, familiarization, test_window
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(summarize_task_outcome_order, <span class="fu">aes</span>(<span class="at">x =</span> outcome_order, <span class="at">y =</span> mean_diff_log, <span class="at">fill =</span> domain,<span class="at">color=</span>domain)) <span class="sc">+</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(summarize_task_outcome_order, <span class="fu">aes</span>(<span class="at">x =</span> outcome_order, <span class="at">y =</span> mean_diff_log, <span class="at">fill =</span> outcome_order,<span class="at">color=</span>outcome_order)) <span class="sc">+</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">data=</span>primary_voe_data,<span class="fu">aes</span>(<span class="at">y =</span> diff_log), <span class="at">width =</span> <span class="fl">0.1</span>,<span class="at">height=</span><span class="dv">0</span>, <span class="at">alpha =</span> <span class="fl">0.1</span>)<span class="sc">+</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> mean_diff_log <span class="sc">-</span> ci_diff_log, <span class="at">ymax =</span> mean_diff_log <span class="sc">+</span> ci_diff_log), <span class="at">width =</span> <span class="dv">0</span>, <span class="at">color=</span><span class="st">"black"</span>) <span class="sc">+</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> domain<span class="sc">+</span>task,<span class="at">ncol=</span><span class="dv">4</span>) <span class="sc">+</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Outcome Order"</span>,</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"VOE Effect (Unexpected - Expected Log Looking)"</span>) <span class="sc">+</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_cowplot</span>()<span class="sc">+</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">#rename x-levels</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"exp_first"</span> <span class="ot">=</span> <span class="st">"Exp.</span><span class="sc">\n</span><span class="st">First"</span>, <span class="st">"unexp_first"</span> <span class="ot">=</span> <span class="st">"Unexp.</span><span class="sc">\n</span><span class="st">First"</span>)) <span class="sc">+</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Outcome Order"</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"VOE Effect (Unexpected - Expected Log Looking)"</span>) <span class="sc">+</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_cowplot</span>()<span class="sc">+</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -276,11 +279,12 @@ dbl (4): subject, age_months, familiarization, test_window
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">data=</span>summarize_subj_order,<span class="fu">aes</span>(<span class="at">y =</span> mean_diff_log), <span class="at">width =</span> <span class="fl">0.1</span>,<span class="at">height=</span><span class="dv">0</span>, <span class="at">alpha =</span> <span class="fl">0.1</span>)<span class="sc">+</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="dv">3</span>) <span class="sc">+</span></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> group_avg_diff_log <span class="sc">-</span> ci_diff_log, <span class="at">ymax =</span> group_avg_diff_log <span class="sc">+</span> ci_diff_log), <span class="at">width =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Outcome Order"</span>,</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"VOE Effect (Unexpected - Expected Log Looking)"</span>) <span class="sc">+</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_cowplot</span>()<span class="sc">+</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"exp_first"</span> <span class="ot">=</span> <span class="st">"Expected First"</span>, <span class="st">"unexp_first"</span> <span class="ot">=</span> <span class="st">"Unexpected First"</span>)) <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Outcome Order"</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"VOE Effect (Unexpected - Expected Log Looking)"</span>) <span class="sc">+</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_cowplot</span>()<span class="sc">+</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -289,28 +293,53 @@ dbl (4): subject, age_months, familiarization, test_window
 </div>
 </div>
 </div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#compute cohen's d</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cohens_d</span>(mean_diff_log <span class="sc">~</span> outcome_order, <span class="at">data =</span> summarize_subj_order)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Cohen's d |         95% CI
+--------------------------
+-1.94     | [-2.45, -1.42]
+
+- Estimated using pooled SD.</code></pre>
+</div>
+</div>
+<p>The effect is extremely large, Cohen’s d = -1.94.</p>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#in raw looking time, just to have a feel</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(summarize_order, <span class="fu">aes</span>(<span class="at">x =</span> outcome_order, <span class="at">y =</span> group_avg_diff_raw, <span class="at">fill =</span> outcome_order,<span class="at">color=</span>outcome_order)) <span class="sc">+</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>(<span class="at">data=</span>summarize_subj_order,<span class="fu">aes</span>(<span class="at">y =</span> mean_diff_raw),<span class="at">fill=</span><span class="cn">NA</span>) <span class="sc">+</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">data=</span>summarize_subj_order,<span class="fu">aes</span>(<span class="at">y =</span> mean_diff_raw), <span class="at">width =</span> <span class="fl">0.1</span>,<span class="at">height=</span><span class="dv">0</span>, <span class="at">alpha =</span> <span class="fl">0.1</span>)<span class="sc">+</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> group_avg_diff_raw <span class="sc">-</span> ci_diff_raw, <span class="at">ymax =</span> group_avg_diff_raw <span class="sc">+</span> ci_diff_raw), <span class="at">width =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Outcome Order"</span>,</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"VOE Effect (Unexpected - Expected Raw Looking)"</span>) <span class="sc">+</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_cowplot</span>()<span class="sc">+</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#in raw looking time, just to have a feel</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(summarize_order, <span class="fu">aes</span>(<span class="at">x =</span> outcome_order, <span class="at">y =</span> group_avg_diff_raw, <span class="at">fill =</span> outcome_order,<span class="at">color=</span>outcome_order)) <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>(<span class="at">data=</span>summarize_subj_order,<span class="fu">aes</span>(<span class="at">y =</span> mean_diff_raw),<span class="at">fill=</span><span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">data=</span>summarize_subj_order,<span class="fu">aes</span>(<span class="at">y =</span> mean_diff_raw), <span class="at">width =</span> <span class="fl">0.1</span>,<span class="at">height=</span><span class="dv">0</span>, <span class="at">alpha =</span> <span class="fl">0.1</span>)<span class="sc">+</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> group_avg_diff_raw <span class="sc">-</span> ci_diff_raw, <span class="at">ymax =</span> group_avg_diff_raw <span class="sc">+</span> ci_diff_raw), <span class="at">width =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"exp_first"</span> <span class="ot">=</span> <span class="st">"Expected First"</span>, <span class="st">"unexp_first"</span> <span class="ot">=</span> <span class="st">"Unexpected First"</span>)) <span class="sc">+</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Outcome Order"</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"VOE Effect (Unexpected - Expected Raw Looking)"</span>) <span class="sc">+</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_cowplot</span>()<span class="sc">+</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#compute cohen's d</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cohens_d</span>(mean_diff_raw <span class="sc">~</span> outcome_order, <span class="at">data =</span> summarize_subj_order)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Cohen's d |         95% CI
+--------------------------
+-2.17     | [-2.70, -1.63]
+
+- Estimated using pooled SD.</code></pre>
+</div>
+</div>
+<p>The effect is extremely large, Cohen’s d = -2.17.</p>
 </div>
 </div>
 </div>
@@ -327,20 +356,20 @@ dbl (4): subject, age_months, familiarization, test_window
 </ol>
 <section id="original-single-factor-model" class="level2">
 <h2 class="anchored" data-anchor-id="original-single-factor-model">0. Original (Single-Factor) Model</h2>
-<p>We can first reproduce the original model, using the code from the paper.</p>
+<p>I can first reproduce the original model, using the code from the paper (great!).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>dat.lav <span class="ot">&lt;-</span> primary_voe_data <span class="sc">%&gt;%</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(subject, outcome_order,task, age_months, diff_log) <span class="sc">%&gt;%</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(task) <span class="sc">%&gt;%</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">diff_log =</span> <span class="fu">scale</span>(diff_log)) <span class="sc">%&gt;%</span>       <span class="co"># z-score within task</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">spread</span>(task, diff_log)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#fit 1-factor CFA model</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>model_gen <span class="ot">&lt;-</span> <span class="st">'gen_factor =~ continuity + support + solidity + containment + reach + snack + drink + fairness'</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>fit1.lav <span class="ot">&lt;-</span> <span class="fu">cfa</span>(model_gen, <span class="at">missing =</span> <span class="st">"FIML"</span>, <span class="at">estimator =</span> <span class="st">"MLR"</span>, <span class="at">data =</span> dat.lav, <span class="at">std.lv =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#summarize original 1-factor model</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1.lav)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>dat.lav <span class="ot">&lt;-</span> primary_voe_data <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(subject, outcome_order,task, age_months, diff_log) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(task) <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">diff_log =</span> <span class="fu">scale</span>(diff_log)) <span class="sc">%&gt;%</span>       <span class="co"># z-score within task</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">spread</span>(task, diff_log)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#fit 1-factor CFA model</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>model_gen <span class="ot">&lt;-</span> <span class="st">'gen_factor =~ continuity + support + solidity + containment + reach + snack + drink + fairness'</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>fit1.lav <span class="ot">&lt;-</span> <span class="fu">cfa</span>(model_gen, <span class="at">missing =</span> <span class="st">"FIML"</span>, <span class="at">estimator =</span> <span class="st">"MLR"</span>, <span class="at">data =</span> dat.lav, <span class="at">std.lv =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">#summarize original 1-factor model</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1.lav)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>lavaan 0.6-21 ended normally after 17 iterations
 
@@ -400,38 +429,24 @@ Variances:
    .fairness          0.803    0.202    3.973    0.000
     gen_factor        1.000                           </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fitMeasures</span>(fit1.lav, <span class="fu">c</span>(<span class="st">"cfi.robust"</span>, <span class="st">"tli.robust"</span>, <span class="st">"rmsea.robust"</span>, <span class="st">"srmr"</span>, <span class="st">"aic"</span>, <span class="st">"bic"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fitMeasures</span>(fit1.lav, <span class="fu">c</span>(<span class="st">"cfi.robust"</span>, <span class="st">"tli.robust"</span>, <span class="st">"rmsea.robust"</span>, <span class="st">"srmr"</span>, <span class="st">"aic"</span>, <span class="st">"bic"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  cfi.robust   tli.robust rmsea.robust         srmr          aic          bic 
        0.981        0.974        0.023        0.092     1561.576     1620.480 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>semTools<span class="sc">::</span><span class="fu">reliability</span>(fit1.lav, <span class="at">what =</span> <span class="fu">c</span>(<span class="st">"alpha"</span>, <span class="st">"omega"</span>, <span class="st">"ave"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in semTools::reliability(fit1.lav, what = c("alpha", "omega", "ave")): 
-The reliability() function was deprecated in 2022 and will cease to be included in future versions of semTools. See help('semTools-deprecated) for details.
-
-It is replaced by the compRelSEM() function, which can estimate alpha and model-based reliability in an even wider variety of models and data types, with greater control in specifying the desired type of reliability coefficient (i.e., more explicitly choosing assumptions). 
-
-The average variance extracted should never have been included because it is not a reliability coefficient. It is now available from the AVE() function.</code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>       gen_factor
-alpha   0.6490376
-omega   0.6609245
-avevar  0.2050912</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#semTools::reliability(fit1.lav, what = c("alpha", "omega", "ave"))</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="mimic-model" class="level2">
 <h2 class="anchored" data-anchor-id="mimic-model">1. MIMIC model</h2>
-<p>We next fit a “MIMIC” model, in which we fit the same CFA/ measurement model, and add a structural model in which outcome_order predicts the latent factor. To the extent to which outcome_order explains most (if not all) of the variance in the latent factor, this suggests that the latent factor (interpreted as a “general surprise” factor) is better interpreted as an “assigned order” factor. <strong>The upshot of this model is that outcome order explains ~85% of the variance in the latent “domain-general surprise sensitivity”.</strong> In other words, this model confirms that the latent factor is best understood as an “assigned order” factor.</p>
+<p>I next fit a “MIMIC” model, in which I fit the same CFA/ measurement model, and add a structural model in which outcome_order predicts the latent factor. To the extent to which outcome order explains most (if not all) of the variance in the latent factor, this suggests that the latent factor (interpreted as a “general surprise” factor) is better interpreted as an “assigned order” factor. <strong>The upshot of this model is that outcome order explains ~85% of the variance in the latent “domain-general surprise sensitivity”.</strong> In other words, this model confirms that the latent factor is best understood as an “assigned order” factor.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>model_mimic <span class="ot">&lt;-</span> <span class="st">'</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="st">  gen_factor =~ continuity + support + solidity + containment + reach + snack + drink + fairness</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="st">  gen_factor ~ outcome_order</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>fit_mimic <span class="ot">&lt;-</span> <span class="fu">sem</span>(model_mimic, <span class="at">data =</span> dat.lav, <span class="at">estimator =</span> <span class="st">"MLR"</span>, <span class="at">missing =</span> <span class="st">"fiml"</span>)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_mimic, <span class="at">standardized =</span> <span class="cn">TRUE</span>, <span class="at">rsquare =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model_mimic <span class="ot">&lt;-</span> <span class="st">'</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="st">  gen_factor =~ continuity + support + solidity + containment + reach + snack + drink + fairness</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="st">  gen_factor ~ outcome_order</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>fit_mimic <span class="ot">&lt;-</span> <span class="fu">sem</span>(model_mimic, <span class="at">data =</span> dat.lav, <span class="at">estimator =</span> <span class="st">"MLR"</span>, <span class="at">missing =</span> <span class="st">"fiml"</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_mimic, <span class="at">standardized =</span> <span class="cn">TRUE</span>, <span class="at">rsquare =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>lavaan 0.6-21 ended normally after 72 iterations
 
@@ -508,7 +523,7 @@ R-Square:
     fairness          0.251
     gen_factor        0.847</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lavInspect</span>(fit_mimic, <span class="st">"rsquare"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lavInspect</span>(fit_mimic, <span class="st">"rsquare"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> continuity     support    solidity containment       reach       snack 
       0.063       0.218       0.206       0.211       0.250       0.069 
@@ -521,18 +536,18 @@ R-Square:
 <h2 class="anchored" data-anchor-id="residualized-model">2. Residualized model</h2>
 <p>An alternate way to dig into the effect of outcome order is to try to remove the effect of outcome order on looking on each task (via residualizing), and then refit the CFA model on residualized looking (i.e., after accounting for outcome order). I fit this model below. The model technically converges, but the general factor variance is now basically indistinguishable from zero (.001, 95% CI [-.029, .032]). The factor laodings are now all over the place - I think this is just a consequence of the shared variance being so, so small (so now the factor loading estimates are super unstable). <strong>The upshot seems to be that we can’t successfully identify a common factor after partialling out the effect of infants’ assigned order on looking time differences.</strong></p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create a dataset</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>df_resid <span class="ot">&lt;-</span> dat.lav <span class="sc">%&gt;%</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(continuity, support, solidity, containment, reach, snack, drink, fairness),</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                <span class="sc">~</span> <span class="fu">resid</span>(<span class="fu">lm</span>(.x <span class="sc">~</span> outcome_order, <span class="at">data =</span> dat.lav, <span class="at">na.action =</span> na.exclude)),</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">.names =</span> <span class="st">"{.col}_r"</span>))</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co">#fit CFA model</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>model_resid <span class="ot">&lt;-</span> <span class="st">'</span></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="st">  gen_factor =~ continuity_r + support_r + solidity_r + containment_r + reach_r + snack_r + drink_r + fairness_r</span></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>fit_resid <span class="ot">&lt;-</span> <span class="fu">cfa</span>(model_resid, <span class="at">data =</span> df_resid, <span class="at">estimator =</span> <span class="st">"MLR"</span>, <span class="at">missing =</span> <span class="st">"fiml"</span>)</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co">#inspect model/fit results</span></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_resid, <span class="at">fit.measures =</span> <span class="cn">TRUE</span>, <span class="at">standardized =</span> <span class="cn">TRUE</span>,<span class="at">rsquare=</span><span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create a dataset</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>df_resid <span class="ot">&lt;-</span> dat.lav <span class="sc">%&gt;%</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(continuity, support, solidity, containment, reach, snack, drink, fairness),</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                <span class="sc">~</span> <span class="fu">resid</span>(<span class="fu">lm</span>(.x <span class="sc">~</span> outcome_order, <span class="at">data =</span> dat.lav, <span class="at">na.action =</span> na.exclude)),</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">.names =</span> <span class="st">"{.col}_r"</span>))</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="co">#fit CFA model</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>model_resid <span class="ot">&lt;-</span> <span class="st">'</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="st">  gen_factor =~ continuity_r + support_r + solidity_r + containment_r + reach_r + snack_r + drink_r + fairness_r</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>fit_resid <span class="ot">&lt;-</span> <span class="fu">cfa</span>(model_resid, <span class="at">data =</span> df_resid, <span class="at">estimator =</span> <span class="st">"MLR"</span>, <span class="at">missing =</span> <span class="st">"fiml"</span>)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="co">#inspect model/fit results</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_resid, <span class="at">fit.measures =</span> <span class="cn">TRUE</span>, <span class="at">standardized =</span> <span class="cn">TRUE</span>,<span class="at">rsquare=</span><span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>lavaan 0.6-21 ended normally after 154 iterations
 
@@ -649,12 +664,12 @@ R-Square:
     drink_r           0.000
     fairness_r        0.032</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fitMeasures</span>(fit_resid, <span class="fu">c</span>(<span class="st">"cfi.robust"</span>, <span class="st">"tli.robust"</span>, <span class="st">"rmsea.robust"</span>, <span class="st">"srmr"</span>, <span class="st">"aic"</span>, <span class="st">"bic"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fitMeasures</span>(fit_resid, <span class="fu">c</span>(<span class="st">"cfi.robust"</span>, <span class="st">"tli.robust"</span>, <span class="st">"rmsea.robust"</span>, <span class="st">"srmr"</span>, <span class="st">"aic"</span>, <span class="st">"bic"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  cfi.robust   tli.robust rmsea.robust         srmr          aic          bic 
        1.000        2.625        0.000        0.076     1489.640     1548.544 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameterEstimates</span>(fit_resid) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(lhs <span class="sc">==</span> <span class="st">"gen_factor"</span>, op <span class="sc">==</span> <span class="st">"~~"</span>)  <span class="co"># factor variance</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameterEstimates</span>(fit_resid) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(lhs <span class="sc">==</span> <span class="st">"gen_factor"</span>, op <span class="sc">==</span> <span class="st">"~~"</span>)  <span class="co"># factor variance</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         lhs op        rhs   est    se     z pvalue ci.lower ci.upper
 1 gen_factor ~~ gen_factor 0.001 0.016 0.086  0.932   -0.029    0.032</code></pre>
@@ -663,13 +678,13 @@ R-Square:
 </section>
 <section id="predicting-estimated-latent-scores-from-outcome-order" class="level2">
 <h2 class="anchored" data-anchor-id="predicting-estimated-latent-scores-from-outcome-order">3. Predicting estimated latent scores from outcome order</h2>
-<p>Here, we add another (probably dispreferred, but perhaps simpler) way to interrogate the extent to which the latent factor reflects outcome order. We extract estimates of the latent factor for individuals from the original CFA model. We then predict these individual estimates from outcome order. The analysis again finds that assigned order explains a vast amount of the variance in the latent factor (r squared = 0.44). Note that the variance explained is at the same time substantially lower than for Approach 1 (0.44 vs.&nbsp;0.85). I think this makes sense from a psychometric perspective, however, because of attenuation bias due to measurement unreliability. The MIMIC model estimates the variance explained directly from the measurement model, whereas in the approach below, we are correlating outcome order with (noisy) estimates of the individual scores. Because reliability of the general surprise factor is modest/ medium (~.66, see estimate above), the R2 naturally shrinks due to the additional noise. I think the MIMIC model is probably strictly the better approach here, but I report all three approaches I tried for transparency/ to give a more complete picture.</p>
+<p>Here, I add another (probably dispreferred, but perhaps simpler) way to interrogate the extent to which the latent factor reflects outcome order. I extract estimates of the latent factor for individuals from the original CFA model. I then predict these individual estimates from outcome order. The analysis again finds that assigned order explains a vast amount of the variance in the latent factor (r squared = 0.44). Note that the variance explained is at the same time substantially lower than for Approach 1 (0.44 vs.&nbsp;0.85). I think this makes sense from a psychometric perspective, however, because of attenuation bias due to measurement unreliability. The MIMIC model estimates the variance explained directly from the measurement model, whereas in the approach below, we are correlating outcome order with (noisy) estimates of the individual scores. Because reliability of the general surprise factor is modest/ medium (~.66, see estimate above), the R2 naturally shrinks due to the additional noise. I think the MIMIC model is probably strictly the better approach here, but I report all three approaches I tried for transparency/ to give a more complete picture.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">#extract individual estimates of general factor scores from the CFA model</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>fs <span class="ot">&lt;-</span> <span class="fu">lavPredict</span>(fit1.lav, <span class="at">method =</span> <span class="st">"Bartlett"</span>)  <span class="co"># from your original model_gen fit</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>dat.lav<span class="sc">$</span>gen_factor_score <span class="ot">&lt;-</span> fs[, <span class="st">"gen_factor"</span>]</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co">#how much variation does outcome order explain?</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(gen_factor_score <span class="sc">~</span> outcome_order, <span class="at">data =</span> dat.lav))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">#extract individual estimates of general factor scores from the CFA model</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>fs <span class="ot">&lt;-</span> <span class="fu">lavPredict</span>(fit1.lav, <span class="at">method =</span> <span class="st">"Bartlett"</span>)  <span class="co"># from the original CFA fit</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>dat.lav<span class="sc">$</span>gen_factor_score <span class="ot">&lt;-</span> fs[, <span class="st">"gen_factor"</span>]</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co">#how much variation does outcome order explain?</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(gen_factor_score <span class="sc">~</span> outcome_order, <span class="at">data =</span> dat.lav))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -702,31 +717,31 @@ F-statistic:  67.2 on 1 and 84 DF,  p-value: 2.44e-12</code></pre>
 <section id="original-correlations" class="level2">
 <h2 class="anchored" data-anchor-id="original-correlations">Original Correlations</h2>
 <p>First, I reproduce the correlation plots demonstrating the relationship between looking time differences for social tasks vs.&nbsp;physical tasks, reported in the original paper (Figure 3).</p>
-<p>Two notes: - the median age is reported as 17.9 months in the paper, but I get 20.3 months (also when I run the original script or when I just inspect the primary_voe_data object post exclusions). - It appears that some additional data might have been excluded to create the exact plots in Figure 3. I couldn’t track down which data might be excluded based on the scripts provided.</p>
-<p>Regardless, the general patterns hold true: - There is an overall correlation of the VOE effects for the social vs.&nbsp;the physical domain. - Both younger and older infants show evidence of a correlation, but the correlation becomes much stronger for older infants.</p>
+<p>Two notes:</p>
+<ul>
+<li><p>the median age is reported as 17.9 months in the paper, but I get 20.3 months (also when I run the original script or when I just inspect the primary_voe_data object post exclusions).</p></li>
+<li><p>It appears that some additional data might have been excluded to create the exact plots in Figure 3. Or it looks like some points might be cut off in the Figures in the paper? I couldn’t track down which data might be excluded based on the scripts provided.</p></li>
+</ul>
+<p>Regardless, the general patterns hold true:</p>
+<ul>
+<li><p>There is an overall correlation of the VOE effects for the social vs.&nbsp;the physical domain.</p></li>
+<li><p>Both younger and older infants show evidence of a correlation, but the correlation becomes much stronger for older infants.</p></li>
+</ul>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">#data approach from the paper (adding outcome order)</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>dat.cross <span class="ot">&lt;-</span> primary_voe_data <span class="sc">%&gt;%</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject, age_months,outcome_order,domain) <span class="sc">%&gt;%</span></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">diff.m =</span> <span class="fu">mean</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">spread</span>(domain, diff.m) <span class="sc">%&gt;%</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">age.z    =</span> <span class="fu">scale</span>(age_months),</span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">physical =</span> <span class="fu">scale</span>(physical),</span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">social   =</span> <span class="fu">scale</span>(social)</span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  ) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has regrouped the output.
-ℹ Summaries were computed grouped by subject, age_months, outcome_order, and
-  domain.
-ℹ Output is grouped by subject, age_months, and outcome_order.
-ℹ Use `summarise(.groups = "drop_last")` to silence this message.
-ℹ Use `summarise(.by = c(subject, age_months, outcome_order, domain))` for
-  per-operation grouping (`?dplyr::dplyr_by`) instead.</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>median_age <span class="ot">&lt;-</span> <span class="fu">median</span>(dat.cross<span class="sc">$</span>age_months)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">#data approach from the paper (adding outcome order)</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>dat.cross <span class="ot">&lt;-</span> primary_voe_data <span class="sc">%&gt;%</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject, age_months,outcome_order,domain) <span class="sc">%&gt;%</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">diff.m =</span> <span class="fu">mean</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">spread</span>(domain, diff.m) <span class="sc">%&gt;%</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">age.z    =</span> <span class="fu">scale</span>(age_months),</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">physical =</span> <span class="fu">scale</span>(physical),</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">social   =</span> <span class="fu">scale</span>(social)</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>  ) </span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>median_age <span class="ot">&lt;-</span> <span class="fu">median</span>(dat.cross<span class="sc">$</span>age_months)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">Overall</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">Younger Infants</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" role="tab" aria-controls="tabset-2-3" aria-selected="false" href="">Older Infants</a></li></ul>
@@ -742,13 +757,10 @@ F-statistic:  67.2 on 1 and 84 DF,  p-value: 2.44e-12</code></pre>
 <span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">3.5</span>,<span class="fl">3.5</span>)</span>
 <span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>overall</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
-</div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -756,24 +768,21 @@ F-statistic:  67.2 on 1 and 84 DF,  p-value: 2.44e-12</code></pre>
 </div>
 <div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Younger infants (&lt; median age)</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>younger <span class="ot">&lt;-</span> dat.cross <span class="sc">%&gt;%</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(age_months <span class="sc">&lt;=</span> median_age) <span class="sc">%&gt;%</span></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">scale</span>(physical), <span class="at">y =</span> social)) <span class="sc">+</span></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Physical Surprise Scores"</span>, <span class="at">y =</span> <span class="st">"Social Surprise Scores"</span>) <span class="sc">+</span></span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">3.5</span>, <span class="fl">3.5</span>) <span class="co">#scaling issue???// exclusions different from paper?</span></span>
-<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>younger</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Younger infants (&lt; median age)</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>younger <span class="ot">&lt;-</span> dat.cross <span class="sc">%&gt;%</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(age_months <span class="sc">&lt;=</span> median_age) <span class="sc">%&gt;%</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">scale</span>(physical), <span class="at">y =</span> social)) <span class="sc">+</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Physical Surprise Scores"</span>, <span class="at">y =</span> <span class="st">"Social Surprise Scores"</span>) <span class="sc">+</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">3.5</span>, <span class="fl">3.5</span>) <span class="co">#scaling issue???// exclusions different from paper?</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>younger</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -781,24 +790,21 @@ F-statistic:  67.2 on 1 and 84 DF,  p-value: 2.44e-12</code></pre>
 </div>
 <div id="tabset-2-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-3-tab">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Older infants (&gt; median age)</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>older <span class="ot">&lt;-</span> dat.cross <span class="sc">%&gt;%</span></span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(age_months <span class="sc">&gt;</span> median_age) <span class="sc">%&gt;%</span></span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">scale</span>(physical), <span class="at">y =</span> <span class="fu">scale</span>(social))) <span class="sc">+</span></span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"blue3"</span>) <span class="sc">+</span></span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"blue3"</span>) <span class="sc">+</span></span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Physical Surprise Scores"</span>, <span class="at">y =</span> <span class="st">"Social Surprise Scores"</span>) <span class="sc">+</span></span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">3.5</span>, <span class="fl">3.5</span>)</span>
-<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>older</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Older infants (&gt; median age)</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>older <span class="ot">&lt;-</span> dat.cross <span class="sc">%&gt;%</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(age_months <span class="sc">&gt;</span> median_age) <span class="sc">%&gt;%</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">scale</span>(physical), <span class="at">y =</span> <span class="fu">scale</span>(social))) <span class="sc">+</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"blue3"</span>) <span class="sc">+</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"blue3"</span>) <span class="sc">+</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Physical Surprise Scores"</span>, <span class="at">y =</span> <span class="st">"Social Surprise Scores"</span>) <span class="sc">+</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">3.5</span>, <span class="fl">3.5</span>)</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>older</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -811,72 +817,16 @@ F-statistic:  67.2 on 1 and 84 DF,  p-value: 2.44e-12</code></pre>
 <h2 class="anchored" data-anchor-id="correlations-split-by-outcome-order">Correlations split by outcome order</h2>
 <p>First, observe the distribution of expected-first vs.&nbsp;unexpected-first infants in the overall correlation plot. We can see that at least a large amount of the covariance is due to order: expected-first infants show lower looking time differences (longer looking to the expected trial, which is their first trial) in both domains, unexpected-first infants show higher looking time differences (longer looking to the unexpected trial, which is their first trial).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>overall_order_color <span class="ot">&lt;-</span> dat.cross <span class="sc">%&gt;%</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">scale</span>(physical), <span class="at">y =</span> social,<span class="at">color=</span>outcome_order)) <span class="sc">+</span></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Physical Surprise Scores"</span>, <span class="at">y =</span> <span class="st">"Social Surprise Scores"</span>) <span class="sc">+</span></span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">3.5</span>,<span class="fl">3.5</span>)<span class="sc">+</span></span>
-<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.2</span>,<span class="fl">0.9</span>))</span>
-<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>overall_order_color</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>Now, we look at the correlations splitting by the (assigned) expected-first or unexpected-first order. Are there any correlations after removing variance (in the surprisal score) due to assigned order? There appears to be much less systematic variance after splitting the data. There is perhaps some sign of a correlation among older infants in the unexpected-first group (r=.52), but not in the expected-first group. Younger infants show no evidence of systematic covariation.</p>
-<div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">Overall</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">Younger Infants</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-3" role="tab" aria-controls="tabset-3-3" aria-selected="false" href="">Older Infants</a></li></ul>
-<div class="tab-content">
-<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>overall_order_split <span class="ot">&lt;-</span> dat.cross <span class="sc">%&gt;%</span></span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">scale</span>(physical), <span class="at">y =</span> social)) <span class="sc">+</span></span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Physical Surprise Scores"</span>, <span class="at">y =</span> <span class="st">"Social Surprise Scores"</span>) <span class="sc">+</span></span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">3.5</span>,<span class="fl">3.5</span>)<span class="sc">+</span></span>
-<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>outcome_order)</span>
-<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>overall_order_split</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</div>
-<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Younger infants (&lt; median age)</span></span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>younger_order_split <span class="ot">&lt;-</span> dat.cross <span class="sc">%&gt;%</span></span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(age_months <span class="sc">&lt;=</span> median_age) <span class="sc">%&gt;%</span></span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">scale</span>(physical), <span class="at">y =</span> social)) <span class="sc">+</span></span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
-<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
-<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Physical Surprise Scores"</span>, <span class="at">y =</span> <span class="st">"Social Surprise Scores"</span>) <span class="sc">+</span></span>
-<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
-<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">3.5</span>, <span class="fl">3.5</span>) <span class="sc">+</span></span>
-<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>outcome_order)</span>
-<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>younger_order_split</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>overall_order_color <span class="ot">&lt;-</span> dat.cross <span class="sc">%&gt;%</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">scale</span>(physical), <span class="at">y =</span> social,<span class="at">color=</span>outcome_order)) <span class="sc">+</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Physical Surprise Scores"</span>, <span class="at">y =</span> <span class="st">"Social Surprise Scores"</span>) <span class="sc">+</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">3.5</span>,<span class="fl">3.5</span>)<span class="sc">+</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.2</span>,<span class="fl">0.9</span>))</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>overall_order_color</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -884,8 +834,55 @@ F-statistic:  67.2 on 1 and 84 DF,  p-value: 2.44e-12</code></pre>
 </figure>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co">#expected first</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.cross,age_months<span class="sc">&lt;=</span>median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"exp_first"</span>)<span class="sc">$</span>physical,<span class="fu">filter</span>(dat.cross,age_months<span class="sc">&lt;=</span>median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"exp_first"</span>)<span class="sc">$</span>social)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now, I look at the correlations splitting by the (assigned) expected-first or unexpected-first order. Are there any correlations after removing variance (in the surprisal score) due to assigned order? There appears to be much less systematic variance after splitting the data. There is perhaps some sign of a correlation among older infants in the unexpected-first group (r=.52), but not in the expected-first group. Younger infants show no evidence of systematic covariation.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">Overall</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">Younger Infants</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-3" role="tab" aria-controls="tabset-3-3" aria-selected="false" href="">Older Infants</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>overall_order_split <span class="ot">&lt;-</span> dat.cross <span class="sc">%&gt;%</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">scale</span>(physical), <span class="at">y =</span> social)) <span class="sc">+</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Physical Surprise Scores"</span>, <span class="at">y =</span> <span class="st">"Social Surprise Scores"</span>) <span class="sc">+</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">3.5</span>,<span class="fl">3.5</span>)<span class="sc">+</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>outcome_order)</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>overall_order_split</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Younger infants (&lt; median age)</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>younger_order_split <span class="ot">&lt;-</span> dat.cross <span class="sc">%&gt;%</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(age_months <span class="sc">&lt;=</span> median_age) <span class="sc">%&gt;%</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">scale</span>(physical), <span class="at">y =</span> social)) <span class="sc">+</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"blue2"</span>) <span class="sc">+</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Physical Surprise Scores"</span>, <span class="at">y =</span> <span class="st">"Social Surprise Scores"</span>) <span class="sc">+</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">3.5</span>, <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>outcome_order)</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>younger_order_split</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co">#expected first</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.cross,age_months<span class="sc">&lt;=</span>median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"exp_first"</span>)<span class="sc">$</span>physical,<span class="fu">filter</span>(dat.cross,age_months<span class="sc">&lt;=</span>median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"exp_first"</span>)<span class="sc">$</span>social)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Pearson's product-moment correlation
@@ -899,8 +896,8 @@ sample estimates:
        cor 
 -0.0934987 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">#expected first</span></span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.cross,age_months<span class="sc">&lt;=</span>median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"unexp_first"</span>)<span class="sc">$</span>physical,<span class="fu">filter</span>(dat.cross,age_months<span class="sc">&lt;=</span>median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"unexp_first"</span>)<span class="sc">$</span>social)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#expected first</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.cross,age_months<span class="sc">&lt;=</span>median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"unexp_first"</span>)<span class="sc">$</span>physical,<span class="fu">filter</span>(dat.cross,age_months<span class="sc">&lt;=</span>median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"unexp_first"</span>)<span class="sc">$</span>social)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Pearson's product-moment correlation
@@ -918,30 +915,27 @@ sample estimates:
 </div>
 <div id="tabset-3-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-3-tab">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Older infants (&gt; median age)</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>older_order_split <span class="ot">&lt;-</span> dat.cross <span class="sc">%&gt;%</span></span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(age_months <span class="sc">&gt;</span> median_age) <span class="sc">%&gt;%</span></span>
-<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">scale</span>(physical), <span class="at">y =</span> <span class="fu">scale</span>(social))) <span class="sc">+</span></span>
-<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"blue3"</span>) <span class="sc">+</span></span>
-<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"blue3"</span>) <span class="sc">+</span></span>
-<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Physical Surprise Scores"</span>, <span class="at">y =</span> <span class="st">"Social Surprise Scores"</span>) <span class="sc">+</span></span>
-<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
-<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">3.5</span>, <span class="fl">3.5</span>)<span class="sc">+</span></span>
-<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>outcome_order)</span>
-<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>older_order_split</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Older infants (&gt; median age)</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>older_order_split <span class="ot">&lt;-</span> dat.cross <span class="sc">%&gt;%</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(age_months <span class="sc">&gt;</span> median_age) <span class="sc">%&gt;%</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">scale</span>(physical), <span class="at">y =</span> <span class="fu">scale</span>(social))) <span class="sc">+</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"blue3"</span>) <span class="sc">+</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">'lm'</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"blue3"</span>) <span class="sc">+</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Physical Surprise Scores"</span>, <span class="at">y =</span> <span class="st">"Social Surprise Scores"</span>) <span class="sc">+</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">2.5</span>, <span class="fl">2.5</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">3.5</span>, <span class="fl">3.5</span>)<span class="sc">+</span></span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>outcome_order)</span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>older_order_split</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co">#expected first</span></span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.cross,age_months <span class="sc">&gt;</span> median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"exp_first"</span>)<span class="sc">$</span>physical,<span class="fu">filter</span>(dat.cross,age_months <span class="sc">&gt;</span> median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"exp_first"</span>)<span class="sc">$</span>social)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co">#expected first</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.cross,age_months <span class="sc">&gt;</span> median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"exp_first"</span>)<span class="sc">$</span>physical,<span class="fu">filter</span>(dat.cross,age_months <span class="sc">&gt;</span> median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"exp_first"</span>)<span class="sc">$</span>social)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Pearson's product-moment correlation
@@ -955,8 +949,8 @@ sample estimates:
       cor 
 0.2261937 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co">#expected first</span></span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.cross,age_months <span class="sc">&gt;</span> median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"unexp_first"</span>)<span class="sc">$</span>physical,<span class="fu">filter</span>(dat.cross,age_months <span class="sc">&gt;</span> median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"unexp_first"</span>)<span class="sc">$</span>social)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co">#expected first</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.cross,age_months <span class="sc">&gt;</span> median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"unexp_first"</span>)<span class="sc">$</span>physical,<span class="fu">filter</span>(dat.cross,age_months <span class="sc">&gt;</span> median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"unexp_first"</span>)<span class="sc">$</span>social)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Pearson's product-moment correlation
@@ -977,10 +971,10 @@ sample estimates:
 </section>
 <section id="no-significant-effect-after-controlling-for-outcome-order" class="level2">
 <h2 class="anchored" data-anchor-id="no-significant-effect-after-controlling-for-outcome-order">No significant effect after controlling for outcome order</h2>
-<p>When we fit the regression model predicting physical from social task looking and its interaction with age, but control for outcome order, there is no longer an overall significant effect of social task on physical task looking. The interaction with age is still significant (but a small effect). Outcome order explains a huge proportion of the variance.</p>
+<p>When I fit the regression model predicting physical from social task looking and its interaction with age, but control for outcome order, there is no longer an overall significant effect of social task on physical task looking. The interaction with age is still significant (but a small effect). Outcome order explains a huge proportion of the variance.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>mod_int_control <span class="ot">&lt;-</span> <span class="fu">lm</span>(physical <span class="sc">~</span> social <span class="sc">*</span> age.z <span class="sc">+</span> outcome_order, <span class="at">data =</span> dat.cross)</span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_int_control)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>mod_int_control <span class="ot">&lt;-</span> <span class="fu">lm</span>(physical <span class="sc">~</span> social <span class="sc">*</span> age.z <span class="sc">+</span> outcome_order, <span class="at">data =</span> dat.cross)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod_int_control)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1004,7 +998,7 @@ Residual standard error: 0.7964 on 81 degrees of freedom
 Multiple R-squared:  0.3955,    Adjusted R-squared:  0.3657 
 F-statistic: 13.25 on 4 and 81 DF,  p-value: 2.378e-08</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>anova_mod_int_control <span class="ot">&lt;-</span> <span class="fu">Anova</span>(mod_int_control, <span class="at">type=</span><span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>anova_mod_int_control <span class="ot">&lt;-</span> <span class="fu">Anova</span>(mod_int_control, <span class="at">type=</span><span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 </section>
@@ -1014,38 +1008,32 @@ F-statistic: 13.25 on 4 and 81 DF,  p-value: 2.378e-08</code></pre>
 <h2 class="anchored" data-anchor-id="only-2-of-the-8-voe-tasks-show-a-significant-voe-effect">Only 2 of the 8 VOE tasks show a significant VOE effect</h2>
 <p>Only 2 of the 8 VOE tasks show a statistically significant VOE effect. The corresponding t-tests are run in the script on OSF (great!), but they are not reported in the paper. Below is a plot showing the distribution of looking time difference scores for each task.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co">#compute average looking time difference by task, with 95% CIs</span></span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>summarized_data <span class="ot">&lt;-</span> primary_voe_data <span class="sc">%&gt;%</span></span>
-<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(domain,task) <span class="sc">%&gt;%</span></span>
-<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">N=</span><span class="fu">n</span>(),</span>
-<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_diff =</span> <span class="fu">mean</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">se_diff =</span> <span class="fu">sd</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">sqrt</span>(N),</span>
-<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_diff =</span> <span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> N <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> se_diff,</span>
-<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has regrouped the output.
-ℹ Summaries were computed grouped by domain and task.
-ℹ Output is grouped by domain.
-ℹ Use `summarise(.groups = "drop_last")` to silence this message.
-ℹ Use `summarise(.by = c(domain, task))` for per-operation grouping
-  (`?dplyr::dplyr_by`) instead.</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot</span></span>
-<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(summarized_data,<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(task,mean_diff),mean_diff,<span class="at">fill=</span>domain, <span class="at">color=</span>domain))<span class="sc">+</span></span>
-<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">data=</span>primary_voe_data,<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(task,diff_log,mean),<span class="at">y=</span>diff_log),<span class="at">stat=</span><span class="st">"identity"</span>, <span class="at">size=</span><span class="dv">1</span>,<span class="at">alpha=</span><span class="fl">0.1</span>,<span class="at">height=</span><span class="dv">0</span>,<span class="at">width=</span><span class="fl">0.1</span>)<span class="sc">+</span></span>
-<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>(<span class="at">data=</span>primary_voe_data,<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(task,diff_log,mean),<span class="at">y=</span>diff_log),<span class="at">width=</span><span class="fl">0.5</span>,<span class="at">fill=</span><span class="cn">NA</span>)<span class="sc">+</span></span>
-<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">stat=</span><span class="st">"identity"</span>, <span class="at">size=</span><span class="dv">3</span>)<span class="sc">+</span></span>
-<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>mean_diff<span class="sc">-</span>ci_diff,<span class="at">ymax=</span>mean_diff<span class="sc">+</span>ci_diff),<span class="at">width=</span><span class="dv">0</span>)<span class="sc">+</span></span>
-<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="dv">0</span>,<span class="at">linetype=</span><span class="st">"dashed"</span>)<span class="sc">+</span></span>
-<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>domain, <span class="at">scales=</span><span class="st">"free_x"</span>)<span class="sc">+</span></span>
-<span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Task"</span>,<span class="at">y=</span><span class="st">"Log Looking Time Difference (Unexpected-Expected)"</span>)<span class="sc">+</span></span>
-<span id="cb59-10"><a href="#cb59-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()<span class="sc">+</span></span>
-<span id="cb59-11"><a href="#cb59-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co">#compute average looking time difference by task, with 95% CIs</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>summarized_data <span class="ot">&lt;-</span> primary_voe_data <span class="sc">%&gt;%</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(domain,task) <span class="sc">%&gt;%</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">N=</span><span class="fu">n</span>(),</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_diff =</span> <span class="fu">mean</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">se_diff =</span> <span class="fu">sd</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">sqrt</span>(N),</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_diff =</span> <span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> N <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> se_diff,</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a><span class="co">#plot</span></span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(summarized_data,<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(task,mean_diff),mean_diff,<span class="at">fill=</span>domain, <span class="at">color=</span>domain))<span class="sc">+</span></span>
+<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">data=</span>primary_voe_data,<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(task,diff_log,mean),<span class="at">y=</span>diff_log),<span class="at">stat=</span><span class="st">"identity"</span>, <span class="at">size=</span><span class="dv">1</span>,<span class="at">alpha=</span><span class="fl">0.1</span>,<span class="at">height=</span><span class="dv">0</span>,<span class="at">width=</span><span class="fl">0.1</span>)<span class="sc">+</span></span>
+<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>(<span class="at">data=</span>primary_voe_data,<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(task,diff_log,mean),<span class="at">y=</span>diff_log),<span class="at">width=</span><span class="fl">0.5</span>,<span class="at">fill=</span><span class="cn">NA</span>)<span class="sc">+</span></span>
+<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">stat=</span><span class="st">"identity"</span>, <span class="at">size=</span><span class="dv">3</span>)<span class="sc">+</span></span>
+<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>mean_diff<span class="sc">-</span>ci_diff,<span class="at">ymax=</span>mean_diff<span class="sc">+</span>ci_diff),<span class="at">width=</span><span class="dv">0</span>)<span class="sc">+</span></span>
+<span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="dv">0</span>,<span class="at">linetype=</span><span class="st">"dashed"</span>)<span class="sc">+</span></span>
+<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>domain, <span class="at">scales=</span><span class="st">"free_x"</span>)<span class="sc">+</span></span>
+<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Task"</span>,<span class="at">y=</span><span class="st">"Log Looking Time Difference (Unexpected-Expected)"</span>)<span class="sc">+</span></span>
+<span id="cb50-20"><a href="#cb50-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()<span class="sc">+</span></span>
+<span id="cb50-21"><a href="#cb50-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette=</span><span class="st">"Set2"</span>)<span class="sc">+</span></span>
+<span id="cb50-22"><a href="#cb50-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1057,97 +1045,62 @@ F-statistic: 13.25 on 4 and 81 DF,  p-value: 2.378e-08</code></pre>
 <h3 class="anchored" data-anchor-id="interpretation-of-interaction-as-a-main-effect">Interpretation of interaction as a main effect</h3>
 <p>The paper seems to describe a main effect of general surprise scores on broad exploration curiosity scores . E.g., on p.&nbsp;6: “As predicted, we observed a reliable relationship between infants’ general surprise responses and their later Broad Exploration; this effect was significantly affected by age.” Similarly in the discussion, the paper reads: “Infants’ surprise responses predicted their later Broad Exploration.” However, there is no main effect of surprise on broad exploration: there is only an interaction between age (at VOE task) and general surprise, as reported in Table 1. The general relationship between surprise and broad exploration is negative and non-significant. The plot below illustrates this point.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create the dataset used in the brms model</span></span>
-<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>emcs_raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>,<span class="st">"emcs_raw.csv"</span>))</span>
-<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>dat.brms <span class="ot">&lt;-</span> <span class="fu">left_join</span>(primary_voe_data, emcs_raw, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subject"</span> <span class="ot">=</span> <span class="st">"subj"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">sociality         =</span> <span class="fu">scale</span>(emcs_soc),</span>
-<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">info_seeking      =</span> <span class="fu">scale</span>(emcs_seek),</span>
-<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">broad_exploration =</span> <span class="fu">scale</span>(emcs_exp),</span>
-<span id="cb60-10"><a href="#cb60-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">persistence       =</span> <span class="fu">scale</span>(emcs_per),</span>
-<span id="cb60-11"><a href="#cb60-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">vocab_tot         =</span> <span class="fu">scale</span>(vocab_tot)</span>
-<span id="cb60-12"><a href="#cb60-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb60-13"><a href="#cb60-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject, age_months, vocab_tot,</span>
-<span id="cb60-14"><a href="#cb60-14" aria-hidden="true" tabindex="-1"></a>           broad_exploration, info_seeking,</span>
-<span id="cb60-15"><a href="#cb60-15" aria-hidden="true" tabindex="-1"></a>           persistence, sociality, age_surv) <span class="sc">%&gt;%</span></span>
-<span id="cb60-16"><a href="#cb60-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb60-17"><a href="#cb60-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">gen_factor =</span> <span class="fu">mean</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)  <span class="co"># average surprise score per subject</span></span>
-<span id="cb60-18"><a href="#cb60-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb60-19"><a href="#cb60-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb60-20"><a href="#cb60-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb60-21"><a href="#cb60-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb60-22"><a href="#cb60-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">gen_factor   =</span> <span class="fu">scale</span>(gen_factor),</span>
-<span id="cb60-23"><a href="#cb60-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_months.z =</span> <span class="fu">scale</span>(age_months),</span>
-<span id="cb60-24"><a href="#cb60-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_surv.z   =</span> <span class="fu">scale</span>(age_surv)) <span class="sc">%&gt;%</span></span>
-<span id="cb60-25"><a href="#cb60-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb60-26"><a href="#cb60-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_split    =</span> <span class="fu">ifelse</span>(age_months.z <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="st">"older"</span>, <span class="st">"younger"</span>)</span>
-<span id="cb60-27"><a href="#cb60-27" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has regrouped the output.
-ℹ Summaries were computed grouped by subject, age_months, vocab_tot,
-  broad_exploration, info_seeking, persistence, sociality, and age_surv.
-ℹ Output is grouped by subject, age_months, vocab_tot, broad_exploration,
-  info_seeking, persistence, and sociality.
-ℹ Use `summarise(.groups = "drop_last")` to silence this message.
-ℹ Use `summarise(.by = c(subject, age_months, vocab_tot, broad_exploration,
-  info_seeking, persistence, sociality, age_surv))` for per-operation grouping
-  (`?dplyr::dplyr_by`) instead.</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plot just the simple correlation of broad exploration and general surprise, then split by age</span></span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dat.brms,<span class="fu">aes</span>(gen_factor,broad_exploration))<span class="sc">+</span></span>
-<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>)<span class="sc">+</span></span>
-<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"General Surprise Factor"</span>, <span class="at">y=</span> <span class="st">"Broad Exploration Score"</span>,<span class="at">title=</span><span class="st">"Overall"</span>)<span class="sc">+</span></span>
-<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
-<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"younger"</span>),<span class="fu">aes</span>(gen_factor,broad_exploration))<span class="sc">+</span></span>
-<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>)<span class="sc">+</span></span>
-<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"General Surprise Factor"</span>, <span class="at">y=</span> <span class="st">"Broad Exploration Score"</span>,<span class="at">title=</span><span class="st">"Younger Infants"</span>)<span class="sc">+</span></span>
-<span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Using one column matrices in `filter()` or `filter_out()` was deprecated in
-dplyr 1.1.0.
-ℹ Please use one dimensional logical vectors instead.</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"older"</span>),<span class="fu">aes</span>(gen_factor,broad_exploration))<span class="sc">+</span></span>
-<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>)<span class="sc">+</span></span>
-<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"General Surprise Factor"</span>, <span class="at">y=</span> <span class="st">"Broad Exploration Score"</span>,<span class="at">title=</span><span class="st">"Older Infants"</span>)<span class="sc">+</span></span>
-<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Using one column matrices in `filter()` or `filter_out()` was deprecated in
-dplyr 1.1.0.
-ℹ Please use one dimensional logical vectors instead.</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>p1<span class="sc">+</span>p2<span class="sc">+</span>p3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`geom_smooth()` using formula = 'y ~ x'
-`geom_smooth()` using formula = 'y ~ x'
-`geom_smooth()` using formula = 'y ~ x'</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create the dataset used in the brms model</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>emcs_raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>,<span class="st">"emcs_raw.csv"</span>))</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>dat.brms <span class="ot">&lt;-</span> <span class="fu">left_join</span>(primary_voe_data, emcs_raw, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subject"</span> <span class="ot">=</span> <span class="st">"subj"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">sociality         =</span> <span class="fu">scale</span>(emcs_soc),</span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">info_seeking      =</span> <span class="fu">scale</span>(emcs_seek),</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">broad_exploration =</span> <span class="fu">scale</span>(emcs_exp),</span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">persistence       =</span> <span class="fu">scale</span>(emcs_per),</span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">vocab_tot         =</span> <span class="fu">scale</span>(vocab_tot)</span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject, age_months, vocab_tot,</span>
+<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a>           broad_exploration, info_seeking,</span>
+<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a>           persistence, sociality, age_surv) <span class="sc">%&gt;%</span></span>
+<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb51-17"><a href="#cb51-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">gen_factor =</span> <span class="fu">mean</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)  <span class="co"># average surprise score per subject</span></span>
+<span id="cb51-18"><a href="#cb51-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb51-19"><a href="#cb51-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb51-20"><a href="#cb51-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb51-21"><a href="#cb51-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb51-22"><a href="#cb51-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">gen_factor   =</span> <span class="fu">scale</span>(gen_factor),</span>
+<span id="cb51-23"><a href="#cb51-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_months.z =</span> <span class="fu">scale</span>(age_months),</span>
+<span id="cb51-24"><a href="#cb51-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_surv.z   =</span> <span class="fu">scale</span>(age_surv)) <span class="sc">%&gt;%</span></span>
+<span id="cb51-25"><a href="#cb51-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb51-26"><a href="#cb51-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_split    =</span> <span class="fu">ifelse</span>(age_months.z <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="st">"older"</span>, <span class="st">"younger"</span>)</span>
+<span id="cb51-27"><a href="#cb51-27" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb51-28"><a href="#cb51-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-29"><a href="#cb51-29" aria-hidden="true" tabindex="-1"></a><span class="co">#plot just the simple correlation of broad exploration and general surprise, then split by age</span></span>
+<span id="cb51-30"><a href="#cb51-30" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dat.brms,<span class="fu">aes</span>(gen_factor,broad_exploration))<span class="sc">+</span></span>
+<span id="cb51-31"><a href="#cb51-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb51-32"><a href="#cb51-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>)<span class="sc">+</span></span>
+<span id="cb51-33"><a href="#cb51-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"General Surprise Factor"</span>, <span class="at">y=</span> <span class="st">"Broad Exploration Score"</span>,<span class="at">title=</span><span class="st">"Overall"</span>)<span class="sc">+</span></span>
+<span id="cb51-34"><a href="#cb51-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
+<span id="cb51-35"><a href="#cb51-35" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"younger"</span>),<span class="fu">aes</span>(gen_factor,broad_exploration))<span class="sc">+</span></span>
+<span id="cb51-36"><a href="#cb51-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb51-37"><a href="#cb51-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>)<span class="sc">+</span></span>
+<span id="cb51-38"><a href="#cb51-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"General Surprise Factor"</span>, <span class="at">y=</span> <span class="st">"Broad Exploration Score"</span>,<span class="at">title=</span><span class="st">"Younger Infants"</span>)<span class="sc">+</span></span>
+<span id="cb51-39"><a href="#cb51-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
+<span id="cb51-40"><a href="#cb51-40" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"older"</span>),<span class="fu">aes</span>(gen_factor,broad_exploration))<span class="sc">+</span></span>
+<span id="cb51-41"><a href="#cb51-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb51-42"><a href="#cb51-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>)<span class="sc">+</span></span>
+<span id="cb51-43"><a href="#cb51-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"General Surprise Factor"</span>, <span class="at">y=</span> <span class="st">"Broad Exploration Score"</span>,<span class="at">title=</span><span class="st">"Older Infants"</span>)<span class="sc">+</span></span>
+<span id="cb51-44"><a href="#cb51-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
+<span id="cb51-45"><a href="#cb51-45" aria-hidden="true" tabindex="-1"></a>p1<span class="sc">+</span>p2<span class="sc">+</span>p3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="domain_general_voe_reanalysis_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Note that even among older infants (median-split), there is no effect of “general surprise” on broad exploration (r=.24, non-significant).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"older"</span>)<span class="sc">$</span>gen_factor, <span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"older"</span>)<span class="sc">$</span>broad_exploration)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Using one column matrices in `filter()` or `filter_out()` was deprecated in
-dplyr 1.1.0.
-ℹ Please use one dimensional logical vectors instead.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Using one column matrices in `filter()` or `filter_out()` was deprecated in
-dplyr 1.1.0.
-ℹ Please use one dimensional logical vectors instead.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"older"</span>)<span class="sc">$</span>gen_factor, <span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"older"</span>)<span class="sc">$</span>broad_exploration)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Pearson's product-moment correlation
