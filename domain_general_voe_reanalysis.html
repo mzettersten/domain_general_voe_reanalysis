@@ -896,7 +896,7 @@ sample estimates:
        cor 
 -0.0934987 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#expected first</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#unexpected first</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.cross,age_months<span class="sc">&lt;=</span>median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"unexp_first"</span>)<span class="sc">$</span>physical,<span class="fu">filter</span>(dat.cross,age_months<span class="sc">&lt;=</span>median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"unexp_first"</span>)<span class="sc">$</span>social)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -949,7 +949,7 @@ sample estimates:
       cor 
 0.2261937 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co">#expected first</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co">#unexpected first</span></span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.cross,age_months <span class="sc">&gt;</span> median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"unexp_first"</span>)<span class="sc">$</span>physical,<span class="fu">filter</span>(dat.cross,age_months <span class="sc">&gt;</span> median_age<span class="sc">&amp;</span>outcome_order<span class="sc">==</span><span class="st">"unexp_first"</span>)<span class="sc">$</span>social)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -998,7 +998,22 @@ Residual standard error: 0.7964 on 81 degrees of freedom
 Multiple R-squared:  0.3955,    Adjusted R-squared:  0.3657 
 F-statistic: 13.25 on 4 and 81 DF,  p-value: 2.378e-08</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>anova_mod_int_control <span class="ot">&lt;-</span> <span class="fu">Anova</span>(mod_int_control, <span class="at">type=</span><span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>anova_mod_int_control <span class="ot">&lt;-</span> <span class="fu">Anova</span>(mod_int_control, <span class="at">type=</span><span class="dv">3</span>)</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>anova_mod_int_control</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anova Table (Type III tests)
+
+Response: physical
+              Sum Sq Df F value   Pr(&gt;F)    
+(Intercept)    5.522  1  8.7052 0.004148 ** 
+social         2.139  1  3.3726 0.069959 .  
+age.z          0.352  1  0.5550 0.458441    
+outcome_order  9.438  1 14.8794 0.000229 ***
+social:age.z   3.401  1  5.3614 0.023117 *  
+Residuals     51.379 81                     
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
 </div>
 </section>
 </section>
@@ -1008,28 +1023,28 @@ F-statistic: 13.25 on 4 and 81 DF,  p-value: 2.378e-08</code></pre>
 <h2 class="anchored" data-anchor-id="only-2-of-the-8-voe-tasks-show-a-significant-voe-effect">Only 2 of the 8 VOE tasks show a significant VOE effect</h2>
 <p>Only 2 of the 8 VOE tasks show a statistically significant VOE effect. The corresponding t-tests are run in the script on OSF (great!), but they are not reported in the paper. Below is a plot showing the distribution of looking time difference scores for each task.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co">#compute average looking time difference by task, with 95% CIs</span></span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>summarized_data <span class="ot">&lt;-</span> primary_voe_data <span class="sc">%&gt;%</span></span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(domain,task) <span class="sc">%&gt;%</span></span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">N=</span><span class="fu">n</span>(),</span>
-<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_diff =</span> <span class="fu">mean</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">se_diff =</span> <span class="fu">sd</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">sqrt</span>(N),</span>
-<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_diff =</span> <span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> N <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> se_diff,</span>
-<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a><span class="co">#plot</span></span>
-<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(summarized_data,<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(task,mean_diff),mean_diff,<span class="at">fill=</span>domain, <span class="at">color=</span>domain))<span class="sc">+</span></span>
-<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">data=</span>primary_voe_data,<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(task,diff_log,mean),<span class="at">y=</span>diff_log),<span class="at">stat=</span><span class="st">"identity"</span>, <span class="at">size=</span><span class="dv">1</span>,<span class="at">alpha=</span><span class="fl">0.1</span>,<span class="at">height=</span><span class="dv">0</span>,<span class="at">width=</span><span class="fl">0.1</span>)<span class="sc">+</span></span>
-<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>(<span class="at">data=</span>primary_voe_data,<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(task,diff_log,mean),<span class="at">y=</span>diff_log),<span class="at">width=</span><span class="fl">0.5</span>,<span class="at">fill=</span><span class="cn">NA</span>)<span class="sc">+</span></span>
-<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">stat=</span><span class="st">"identity"</span>, <span class="at">size=</span><span class="dv">3</span>)<span class="sc">+</span></span>
-<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>mean_diff<span class="sc">-</span>ci_diff,<span class="at">ymax=</span>mean_diff<span class="sc">+</span>ci_diff),<span class="at">width=</span><span class="dv">0</span>)<span class="sc">+</span></span>
-<span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="dv">0</span>,<span class="at">linetype=</span><span class="st">"dashed"</span>)<span class="sc">+</span></span>
-<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>domain, <span class="at">scales=</span><span class="st">"free_x"</span>)<span class="sc">+</span></span>
-<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Task"</span>,<span class="at">y=</span><span class="st">"Log Looking Time Difference (Unexpected-Expected)"</span>)<span class="sc">+</span></span>
-<span id="cb50-20"><a href="#cb50-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()<span class="sc">+</span></span>
-<span id="cb50-21"><a href="#cb50-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette=</span><span class="st">"Set2"</span>)<span class="sc">+</span></span>
-<span id="cb50-22"><a href="#cb50-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co">#compute average looking time difference by task, with 95% CIs</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>summarized_data <span class="ot">&lt;-</span> primary_voe_data <span class="sc">%&gt;%</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(domain,task) <span class="sc">%&gt;%</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">N=</span><span class="fu">n</span>(),</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_diff =</span> <span class="fu">mean</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">se_diff =</span> <span class="fu">sd</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">sqrt</span>(N),</span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_diff =</span> <span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> N <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> se_diff,</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a><span class="co">#plot</span></span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(summarized_data,<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(task,mean_diff),mean_diff,<span class="at">fill=</span>domain, <span class="at">color=</span>domain))<span class="sc">+</span></span>
+<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">data=</span>primary_voe_data,<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(task,diff_log,mean),<span class="at">y=</span>diff_log),<span class="at">stat=</span><span class="st">"identity"</span>, <span class="at">size=</span><span class="dv">1</span>,<span class="at">alpha=</span><span class="fl">0.1</span>,<span class="at">height=</span><span class="dv">0</span>,<span class="at">width=</span><span class="fl">0.1</span>)<span class="sc">+</span></span>
+<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>(<span class="at">data=</span>primary_voe_data,<span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(task,diff_log,mean),<span class="at">y=</span>diff_log),<span class="at">width=</span><span class="fl">0.5</span>,<span class="at">fill=</span><span class="cn">NA</span>)<span class="sc">+</span></span>
+<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">stat=</span><span class="st">"identity"</span>, <span class="at">size=</span><span class="dv">3</span>)<span class="sc">+</span></span>
+<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin=</span>mean_diff<span class="sc">-</span>ci_diff,<span class="at">ymax=</span>mean_diff<span class="sc">+</span>ci_diff),<span class="at">width=</span><span class="dv">0</span>)<span class="sc">+</span></span>
+<span id="cb51-17"><a href="#cb51-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="dv">0</span>,<span class="at">linetype=</span><span class="st">"dashed"</span>)<span class="sc">+</span></span>
+<span id="cb51-18"><a href="#cb51-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>domain, <span class="at">scales=</span><span class="st">"free_x"</span>)<span class="sc">+</span></span>
+<span id="cb51-19"><a href="#cb51-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Task"</span>,<span class="at">y=</span><span class="st">"Log Looking Time Difference (Unexpected-Expected)"</span>)<span class="sc">+</span></span>
+<span id="cb51-20"><a href="#cb51-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()<span class="sc">+</span></span>
+<span id="cb51-21"><a href="#cb51-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette=</span><span class="st">"Set2"</span>)<span class="sc">+</span></span>
+<span id="cb51-22"><a href="#cb51-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1045,51 +1060,51 @@ F-statistic: 13.25 on 4 and 81 DF,  p-value: 2.378e-08</code></pre>
 <h3 class="anchored" data-anchor-id="interpretation-of-interaction-as-a-main-effect">Interpretation of interaction as a main effect</h3>
 <p>The paper seems to describe a main effect of general surprise scores on broad exploration curiosity scores . E.g., on p.&nbsp;6: “As predicted, we observed a reliable relationship between infants’ general surprise responses and their later Broad Exploration; this effect was significantly affected by age.” Similarly in the discussion, the paper reads: “Infants’ surprise responses predicted their later Broad Exploration.” However, there is no main effect of surprise on broad exploration: there is only an interaction between age (at VOE task) and general surprise, as reported in Table 1. The general relationship between surprise and broad exploration is negative and non-significant. The plot below illustrates this point.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create the dataset used in the brms model</span></span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>emcs_raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>,<span class="st">"emcs_raw.csv"</span>))</span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>dat.brms <span class="ot">&lt;-</span> <span class="fu">left_join</span>(primary_voe_data, emcs_raw, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subject"</span> <span class="ot">=</span> <span class="st">"subj"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">sociality         =</span> <span class="fu">scale</span>(emcs_soc),</span>
-<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">info_seeking      =</span> <span class="fu">scale</span>(emcs_seek),</span>
-<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">broad_exploration =</span> <span class="fu">scale</span>(emcs_exp),</span>
-<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">persistence       =</span> <span class="fu">scale</span>(emcs_per),</span>
-<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">vocab_tot         =</span> <span class="fu">scale</span>(vocab_tot)</span>
-<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject, age_months, vocab_tot,</span>
-<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a>           broad_exploration, info_seeking,</span>
-<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a>           persistence, sociality, age_surv) <span class="sc">%&gt;%</span></span>
-<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb51-17"><a href="#cb51-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">gen_factor =</span> <span class="fu">mean</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)  <span class="co"># average surprise score per subject</span></span>
-<span id="cb51-18"><a href="#cb51-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb51-19"><a href="#cb51-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb51-20"><a href="#cb51-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb51-21"><a href="#cb51-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb51-22"><a href="#cb51-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">gen_factor   =</span> <span class="fu">scale</span>(gen_factor),</span>
-<span id="cb51-23"><a href="#cb51-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_months.z =</span> <span class="fu">scale</span>(age_months),</span>
-<span id="cb51-24"><a href="#cb51-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_surv.z   =</span> <span class="fu">scale</span>(age_surv)) <span class="sc">%&gt;%</span></span>
-<span id="cb51-25"><a href="#cb51-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb51-26"><a href="#cb51-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_split    =</span> <span class="fu">ifelse</span>(age_months.z <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="st">"older"</span>, <span class="st">"younger"</span>)</span>
-<span id="cb51-27"><a href="#cb51-27" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb51-28"><a href="#cb51-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-29"><a href="#cb51-29" aria-hidden="true" tabindex="-1"></a><span class="co">#plot just the simple correlation of broad exploration and general surprise, then split by age</span></span>
-<span id="cb51-30"><a href="#cb51-30" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dat.brms,<span class="fu">aes</span>(gen_factor,broad_exploration))<span class="sc">+</span></span>
-<span id="cb51-31"><a href="#cb51-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb51-32"><a href="#cb51-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>)<span class="sc">+</span></span>
-<span id="cb51-33"><a href="#cb51-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"General Surprise Factor"</span>, <span class="at">y=</span> <span class="st">"Broad Exploration Score"</span>,<span class="at">title=</span><span class="st">"Overall"</span>)<span class="sc">+</span></span>
-<span id="cb51-34"><a href="#cb51-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
-<span id="cb51-35"><a href="#cb51-35" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"younger"</span>),<span class="fu">aes</span>(gen_factor,broad_exploration))<span class="sc">+</span></span>
-<span id="cb51-36"><a href="#cb51-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb51-37"><a href="#cb51-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>)<span class="sc">+</span></span>
-<span id="cb51-38"><a href="#cb51-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"General Surprise Factor"</span>, <span class="at">y=</span> <span class="st">"Broad Exploration Score"</span>,<span class="at">title=</span><span class="st">"Younger Infants"</span>)<span class="sc">+</span></span>
-<span id="cb51-39"><a href="#cb51-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
-<span id="cb51-40"><a href="#cb51-40" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"older"</span>),<span class="fu">aes</span>(gen_factor,broad_exploration))<span class="sc">+</span></span>
-<span id="cb51-41"><a href="#cb51-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb51-42"><a href="#cb51-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>)<span class="sc">+</span></span>
-<span id="cb51-43"><a href="#cb51-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"General Surprise Factor"</span>, <span class="at">y=</span> <span class="st">"Broad Exploration Score"</span>,<span class="at">title=</span><span class="st">"Older Infants"</span>)<span class="sc">+</span></span>
-<span id="cb51-44"><a href="#cb51-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
-<span id="cb51-45"><a href="#cb51-45" aria-hidden="true" tabindex="-1"></a>p1<span class="sc">+</span>p2<span class="sc">+</span>p3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create the dataset used in the brms model</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>emcs_raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>,<span class="st">"emcs_raw.csv"</span>))</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>dat.brms <span class="ot">&lt;-</span> <span class="fu">left_join</span>(primary_voe_data, emcs_raw, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subject"</span> <span class="ot">=</span> <span class="st">"subj"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">sociality         =</span> <span class="fu">scale</span>(emcs_soc),</span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">info_seeking      =</span> <span class="fu">scale</span>(emcs_seek),</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">broad_exploration =</span> <span class="fu">scale</span>(emcs_exp),</span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">persistence       =</span> <span class="fu">scale</span>(emcs_per),</span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">vocab_tot         =</span> <span class="fu">scale</span>(vocab_tot)</span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject, age_months, vocab_tot,</span>
+<span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a>           broad_exploration, info_seeking,</span>
+<span id="cb52-15"><a href="#cb52-15" aria-hidden="true" tabindex="-1"></a>           persistence, sociality, age_surv) <span class="sc">%&gt;%</span></span>
+<span id="cb52-16"><a href="#cb52-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb52-17"><a href="#cb52-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">gen_factor =</span> <span class="fu">mean</span>(diff_log, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)  <span class="co"># average surprise score per subject</span></span>
+<span id="cb52-18"><a href="#cb52-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb52-19"><a href="#cb52-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb52-20"><a href="#cb52-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb52-21"><a href="#cb52-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb52-22"><a href="#cb52-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">gen_factor   =</span> <span class="fu">scale</span>(gen_factor),</span>
+<span id="cb52-23"><a href="#cb52-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_months.z =</span> <span class="fu">scale</span>(age_months),</span>
+<span id="cb52-24"><a href="#cb52-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_surv.z   =</span> <span class="fu">scale</span>(age_surv)) <span class="sc">%&gt;%</span></span>
+<span id="cb52-25"><a href="#cb52-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb52-26"><a href="#cb52-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_split    =</span> <span class="fu">ifelse</span>(age_months.z <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="st">"older"</span>, <span class="st">"younger"</span>)</span>
+<span id="cb52-27"><a href="#cb52-27" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb52-28"><a href="#cb52-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-29"><a href="#cb52-29" aria-hidden="true" tabindex="-1"></a><span class="co">#plot just the simple correlation of broad exploration and general surprise, then split by age</span></span>
+<span id="cb52-30"><a href="#cb52-30" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dat.brms,<span class="fu">aes</span>(gen_factor,broad_exploration))<span class="sc">+</span></span>
+<span id="cb52-31"><a href="#cb52-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb52-32"><a href="#cb52-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>)<span class="sc">+</span></span>
+<span id="cb52-33"><a href="#cb52-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"General Surprise Factor"</span>, <span class="at">y=</span> <span class="st">"Broad Exploration Score"</span>,<span class="at">title=</span><span class="st">"Overall"</span>)<span class="sc">+</span></span>
+<span id="cb52-34"><a href="#cb52-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
+<span id="cb52-35"><a href="#cb52-35" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"younger"</span>),<span class="fu">aes</span>(gen_factor,broad_exploration))<span class="sc">+</span></span>
+<span id="cb52-36"><a href="#cb52-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb52-37"><a href="#cb52-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>)<span class="sc">+</span></span>
+<span id="cb52-38"><a href="#cb52-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"General Surprise Factor"</span>, <span class="at">y=</span> <span class="st">"Broad Exploration Score"</span>,<span class="at">title=</span><span class="st">"Younger Infants"</span>)<span class="sc">+</span></span>
+<span id="cb52-39"><a href="#cb52-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
+<span id="cb52-40"><a href="#cb52-40" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"older"</span>),<span class="fu">aes</span>(gen_factor,broad_exploration))<span class="sc">+</span></span>
+<span id="cb52-41"><a href="#cb52-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb52-42"><a href="#cb52-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method=</span><span class="st">"lm"</span>)<span class="sc">+</span></span>
+<span id="cb52-43"><a href="#cb52-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"General Surprise Factor"</span>, <span class="at">y=</span> <span class="st">"Broad Exploration Score"</span>,<span class="at">title=</span><span class="st">"Older Infants"</span>)<span class="sc">+</span></span>
+<span id="cb52-44"><a href="#cb52-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span>
+<span id="cb52-45"><a href="#cb52-45" aria-hidden="true" tabindex="-1"></a>p1<span class="sc">+</span>p2<span class="sc">+</span>p3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1100,7 +1115,7 @@ F-statistic: 13.25 on 4 and 81 DF,  p-value: 2.378e-08</code></pre>
 </div>
 <p>Note that even among older infants (median-split), there is no effect of “general surprise” on broad exploration (r=.24, non-significant).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"older"</span>)<span class="sc">$</span>gen_factor, <span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"older"</span>)<span class="sc">$</span>broad_exploration)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor.test</span>(<span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"older"</span>)<span class="sc">$</span>gen_factor, <span class="fu">filter</span>(dat.brms,age_split<span class="sc">==</span><span class="st">"older"</span>)<span class="sc">$</span>broad_exploration)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Pearson's product-moment correlation
