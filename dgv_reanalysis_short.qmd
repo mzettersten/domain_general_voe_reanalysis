@@ -11,7 +11,7 @@ editor: visual
 
 # Introduction
 
-This is a reanalysis of Bisbee & Feigenson (2026), focusing on the fact that infants were not randomly assigned to *always* either see surprising outcomes first (for all 8 VOE events) or *always* see unexpected outcomes. This has important consequences for the interpretation of individual differences in the paper. The upshot is that what are interpreted as individual differences in the paper are mostly measurements of whether infants were assigned to see surprising outcomes first or expected outcomes first: Infants who saw surprising test trials first look longer to surprising events, infants who saw expected test trials first tend to look longer at expected events, and this explains most of the systematic variance across individuals. In other words, variation in looking time differences is explained by order effects.
+This is a reanalysis of Bisbee & Feigenson (2026), focusing on the fact that infants were assigned to *always* either see expected outcomes first (for all 8 VOE events) or *always* see unexpected outcomes first. This has important consequences for the interpretation of individual differences in the paper. The upshot is that what are interpreted as individual differences in the paper are mostly measurements of whether infants were assigned to see surprising outcomes first or expected outcomes first: Infants who saw surprising test trials first look longer to surprising events, infants who saw expected test trials first tend to look longer at expected events, and this explains most of the systematic variance across individuals. In other words, variation in looking time differences is explained by order effects.
 
 # Setup
 
@@ -251,7 +251,7 @@ lavInspect(fit_mimic, "rsquare")
 
 ## 2. Residualized model
 
-An alternate way to dig into the effect of outcome order is to try to remove the effect of outcome order on looking on each task (via residualizing), and then refit the CFA model on residualized looking (i.e., after accounting for outcome order). I fit this model below. The model technically converges, but the general factor variance is now basically indistinguishable from zero (.001, 95% CI \[-.029, .032\]). The factor laodings are now all over the place - I think this is just a consequence of the shared variance being so, so small (so now the factor loading estimates are super unstable). **The upshot seems to be that we can't successfully identify a common factor after partialling out the effect of infants' assigned order on looking time differences.**
+An alternate way to dig into the effect of outcome order is to try to remove the effect of outcome order on looking on each task (via residualizing), and then refit the CFA model on residualized looking (i.e., after accounting for outcome order). I fit this model below. The model technically converges, but the general factor variance is now basically indistinguishable from zero (.001, 95% CI \[-.029, .032\]). The factor loadings are now all over the place - I think this is just a consequence of the shared variance being so, so small (so now the factor loading estimates are super unstable). **The upshot seems to be that we can't successfully identify a common factor after partialling out the effect of infants' assigned order on looking time differences.**
 
 ```{r}
 #create a dataset
