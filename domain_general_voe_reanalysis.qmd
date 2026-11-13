@@ -114,18 +114,26 @@ summarize_task_outcome_order <- primary_voe_data %>%
 ```{r}
 #| fig-height: 8
 
-ggplot(summarize_task_outcome_order, aes(x = outcome_order, y = mean_diff_log, fill = outcome_order,color=outcome_order)) +
+#color palette
+color_palette_outcome <- c("#1b4b4b","#b62779")
+
+order_effect_by_task <- ggplot(summarize_task_outcome_order, aes(x = outcome_order, y = mean_diff_log, fill = outcome_order,color=outcome_order)) +
   geom_bar(stat = "identity", position = "dodge") +
-  geom_jitter(data=primary_voe_data,aes(y = diff_log), width = 0.1,height=0, alpha = 0.1)+
+  geom_jitter(data=primary_voe_data,aes(y = diff_log), width = 0.1,height=0, alpha = 0.3)+
   geom_errorbar(aes(ymin = mean_diff_log - ci_diff_log, ymax = mean_diff_log + ci_diff_log), width = 0, color="black") +
   facet_wrap(~ domain+task,ncol=4) +
   #rename x-levels
   scale_x_discrete(labels = c("exp_first" = "Exp.\nFirst", "unexp_first" = "Unexp.\nFirst")) +
+  scale_color_discrete(palette=color_palette_outcome)+
+  scale_fill_discrete(palette=color_palette_outcome)+
   labs(x = "Outcome Order",
        y = "VOE Effect (Unexpected - Expected Log Looking)") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   theme_cowplot()+
   theme(legend.position="none")
+order_effect_by_task
+#save plot
+ggsave("figures/order_effect_by_task.png",width=6,height=6)
 ```
 
 ## Trial Order Effect (overall)
@@ -157,17 +165,26 @@ summarize_order <- summarize_subj_order %>%
 
 ```{r}
 #summarize data for each VOE event by expected first vs. unexpected first
-ggplot(summarize_order, aes(x = outcome_order, y = group_avg_diff_log, fill = outcome_order,color=outcome_order)) +
+overall_order_effect <- ggplot(summarize_order, aes(x = outcome_order, y = group_avg_diff_log, fill = outcome_order,color=outcome_order)) +
   geom_violin(data=summarize_subj_order,aes(y = mean_diff_log),fill=NA) +
-  geom_jitter(data=summarize_subj_order,aes(y = mean_diff_log), width = 0.1,height=0, alpha = 0.1)+
+  geom_jitter(data=summarize_subj_order,aes(y = mean_diff_log), width = 0.1,height=0, alpha = 0.2)+
   geom_point(size=3) +
   geom_errorbar(aes(ymin = group_avg_diff_log - ci_diff_log, ymax = group_avg_diff_log + ci_diff_log), width = 0) +
   scale_x_discrete(labels = c("exp_first" = "Expected First", "unexp_first" = "Unexpected First")) +
+  scale_color_discrete(palette=color_palette_outcome)+
+  scale_fill_discrete(palette=color_palette_outcome)+
   labs(x = "Outcome Order",
        y = "VOE Effect (Unexpected - Expected Log Looking)") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   theme_cowplot()+
   theme(legend.position="none")
+overall_order_effect
+#save plot
+ggsave("figures/overall_order_effect.png",width=6,height=6)
+
+#save combined plot
+plot_grid(overall_order_effect,order_effect_by_task,labels = c("A","B"),label_size = 18, rel_widths=c(1,2))
+ggsave("figures/order_effect_plot.png",width=12,height=6)
 ```
 
 ```{r}
@@ -247,6 +264,7 @@ model_mimic <- '
 fit_mimic <- sem(model_mimic, data = dat.lav, estimator = "MLR", missing = "fiml")
 summary(fit_mimic, standardized = TRUE, rsquare = TRUE)
 lavInspect(fit_mimic, "rsquare")
+fitMeasures(fit_mimic, c("cfi.robust", "tli.robust", "rmsea.robust", "srmr", "aic", "bic"))
 ```
 
 ## 2. Residualized model
@@ -326,7 +344,7 @@ median_age <- median(dat.cross$age_months)
 
 ```{r, warning=FALSE, message=FALSE}
 overall <- dat.cross %>%
-  ggplot(aes(x = scale(physical), y = social)) +
+  ggplot(aes(x = physical, y = social)) +
   geom_point(color = "blue2") +
   geom_smooth(method = 'lm', se = FALSE, color = "blue2") +
   labs(x = "Physical Surprise Scores", y = "Social Surprise Scores") +
@@ -374,16 +392,29 @@ older
 First, observe the distribution of expected-first vs. unexpected-first infants in the overall correlation plot. We can see that at least a large amount of the covariance is due to order: expected-first infants show lower looking time differences (longer looking to the expected trial, which is their first trial) in both domains, unexpected-first infants show higher looking time differences (longer looking to the unexpected trial, which is their first trial).
 
 ```{r, warning=FALSE, message=FALSE}
-overall_order_color <- dat.cross %>%
-  ggplot(aes(x = scale(physical), y = social,color=outcome_order)) +
+dat.cross <- dat.cross %>%
+  mutate(outcome_order_f = case_when(
+    "unexp_first" == outcome_order ~ "Unexpected First",
+    "exp_first" == outcome_order ~ "Expected First"
+  ))
+order_color <- dat.cross %>%
+  ggplot(aes(x = physical, y = social,color=outcome_order_f)) +
   geom_point() +
-  geom_smooth(method = 'lm', se = FALSE, color = "blue2") +
+  geom_smooth(method = 'lm', color = "black",linewidth=1.2) +
   labs(x = "Physical Surprise Scores", y = "Social Surprise Scores") +
   theme_classic() +
   theme(aspect.ratio = 1) +
-  xlim(-2.5, 2.5) + ylim(-3.5,3.5)+
-  theme(legend.position = c(0.2,0.9))
-overall_order_color
+  scale_color_discrete(palette=color_palette_outcome)+
+  scale_y_continuous(breaks=c(-3,-2,-1,0,1,2,3),limits=c(-3.5,3.5))+
+  xlim(-2.5, 2.5) +
+  theme(legend.position = c(0.2,0.8))+
+  #rename title and make text larger
+  labs(color = "Outcome Order") +
+  theme(legend.title = element_text(size=14), legend.text = element_text(size=12),axis.text = element_text(size = 12),axis.title = element_text(size = 14))
+order_color
+
+# overall correlation
+cor.test(dat.cross$physical,dat.cross$social)
 ```
 
 Now, I look at the correlations splitting by the (assigned) expected-first or unexpected-first order. Are there any correlations after removing variance (in the surprisal score) due to assigned order? There appears to be much less systematic variance after splitting the data. There is perhaps some sign of a correlation among older infants in the unexpected-first group (r=.52), but not in the expected-first group. Younger infants show no evidence of systematic covariation.
@@ -392,16 +423,28 @@ Now, I look at the correlations splitting by the (assigned) expected-first or un
 ### Overall
 
 ```{r, warning=FALSE, message=FALSE}
-overall_order_split <- dat.cross %>%
-  ggplot(aes(x = scale(physical), y = social)) +
-  geom_point(color = "blue2") +
-  geom_smooth(method = 'lm', se = FALSE, color = "blue2") +
+order_split <- dat.cross %>%
+  ggplot(aes(x = physical,y = social, color=outcome_order)) +
+  geom_point() +
+  geom_smooth(method = 'lm', color = "black",linewidth=1.2) +
   labs(x = "Physical Surprise Scores", y = "Social Surprise Scores") +
   theme_classic() +
   theme(aspect.ratio = 1) +
-  xlim(-2.5, 2.5) + ylim(-3.5,3.5)+
-  facet_wrap(~outcome_order)
-overall_order_split
+  scale_color_discrete(palette=color_palette_outcome)+
+  scale_y_continuous(breaks=c(-3,-2,-1,0,1,2,3),limits=c(-3.5,3.5))+
+  xlim(-2.5, 2.5) + 
+  facet_wrap(~outcome_order_f,ncol=1)+
+  theme(legend.position="none",axis.text = element_text(size = 12),axis.title = element_text(size = 14))
+order_split
+
+plot_grid(order_color,order_split,labels = c("A","B"),label_size = 18,rel_widths=c(1,0.5))
+ggsave("figures/order_split_plot.png",width=9,height=6,bg="white")
+
+#correlations by order
+# expected-first
+cor.test(filter(dat.cross, outcome_order=="exp_first")$physical,filter(dat.cross, outcome_order=="exp_first")$social)
+# unexpected-first
+cor.test(filter(dat.cross, outcome_order=="unexp_first")$physical,filter(dat.cross, outcome_order=="unexp_first")$social)
 ```
 
 ### Younger Infants
