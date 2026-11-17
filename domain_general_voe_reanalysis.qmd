@@ -115,7 +115,8 @@ summarize_task_outcome_order <- primary_voe_data %>%
 #| fig-height: 8
 
 #color palette
-color_palette_outcome <- c("#1b4b4b","#b62779")
+#color_palette_outcome <- c("#1b4b4b","#b62779")
+color_palette_outcome <- c("#00A651","#9C0056")
 
 order_effect_by_task <- ggplot(summarize_task_outcome_order, aes(x = outcome_order, y = mean_diff_log, fill = outcome_order,color=outcome_order)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -167,7 +168,7 @@ summarize_order <- summarize_subj_order %>%
 #summarize data for each VOE event by expected first vs. unexpected first
 overall_order_effect <- ggplot(summarize_order, aes(x = outcome_order, y = group_avg_diff_log, fill = outcome_order,color=outcome_order)) +
   geom_violin(data=summarize_subj_order,aes(y = mean_diff_log),fill=NA) +
-  geom_jitter(data=summarize_subj_order,aes(y = mean_diff_log), width = 0.1,height=0, alpha = 0.2)+
+  geom_jitter(data=summarize_subj_order,aes(y = mean_diff_log), width = 0.1,height=0, alpha = 0.2,size=2)+
   geom_point(size=3) +
   geom_errorbar(aes(ymin = group_avg_diff_log - ci_diff_log, ymax = group_avg_diff_log + ci_diff_log), width = 0) +
   scale_x_discrete(labels = c("exp_first" = "Expected First", "unexp_first" = "Unexpected First")) +
